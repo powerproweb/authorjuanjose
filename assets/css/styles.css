@@ -1,0 +1,840 @@
+/* ===========================================================================
+   AuthorJuanJose.io — Steampunk Design System
+   Premium steampunk editorial aesthetic
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   0. WEB FONTS (Google Fonts)
+   Playfair Display = serif headings · Source Sans 3 = clean body
+   --------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+/* ---------------------------------------------------------------------------
+   1. CUSTOM PROPERTIES  (colour palette + spacing + typography tokens)
+   --------------------------------------------------------------------------- */
+:root {
+  /* Parchment & brass palette */
+  --bg:             #f5efe2;
+  --bg-warm:        #f9f2e6;
+  --panel:          #fffaf1;
+  --ink:            #2b241d;
+  --ink-light:      #5c4f3d;
+  --accent:         #9d6a2f;   /* Brass */
+  --accent-hover:   #b87a34;
+  --accent-dark:    #6a4520;
+  --copper:         #b87333;
+  --silver:         #8a9a9a;
+  --gold:           #d4a437;
+  --obsidian:       #1e1e2a;
+  --border:         #d8c8ae;
+  --border-dark:    #b5a48a;
+  --danger:         #9e3030;
+  --success:        #3a7d44;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(43,36,29,.1);
+  --shadow-md:  0 4px 12px rgba(43,36,29,.12);
+  --shadow-lg:  0 8px 30px rgba(43,36,29,.15);
+
+  /* Typography */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body:    'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+
+  /* Spacing scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 5rem;
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* Max widths */
+  --max-w: 1100px;
+  --max-w-narrow: 720px;
+}
+
+/* ---------------------------------------------------------------------------
+   2. RESET & BASE
+   --------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.7;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   3. TYPOGRAPHY
+   --------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0 0 var(--space-md);
+}
+
+h1 { font-size: clamp(1.8rem, 4vw, 2.75rem); }
+h2 { font-size: clamp(1.45rem, 3vw, 2rem); }
+h3 { font-size: clamp(1.2rem, 2.5vw, 1.5rem); }
+h4 { font-size: 1.15rem; }
+
+p {
+  margin: 0 0 var(--space-md);
+}
+
+.lead {
+  font-size: 1.2rem;
+  color: var(--ink-light);
+  max-width: 42em;
+}
+
+.section-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: var(--space-xs);
+}
+
+/* ---------------------------------------------------------------------------
+   4. LINKS
+   --------------------------------------------------------------------------- */
+a {
+  color: var(--accent-dark);
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+   5. LAYOUT — CONTAINER
+   --------------------------------------------------------------------------- */
+.container {
+  width: min(var(--max-w), 92%);
+  margin: 0 auto;
+}
+
+.container--narrow {
+  width: min(var(--max-w-narrow), 92%);
+  margin: 0 auto;
+}
+
+/* ---------------------------------------------------------------------------
+   6. SITE HEADER & NAVIGATION
+   --------------------------------------------------------------------------- */
+.site-header {
+  background: var(--bg-warm);
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
+}
+
+.site-brand {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.site-brand:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* Hamburger toggle (visible on mobile) */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 2px solid var(--border-dark);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.55rem;
+  cursor: pointer;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.nav-toggle:hover {
+  background: var(--border);
+}
+
+.main-nav {
+  display: contents;
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list a {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: background .2s ease, color .2s ease;
+}
+
+.nav-list a:hover {
+  background: rgba(157,106,47,.1);
+  text-decoration: none;
+}
+
+.nav-list a.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.nav-list a.is-active:hover {
+  background: var(--accent-hover);
+}
+
+/* ---------------------------------------------------------------------------
+   7. SUB-NAVIGATION (ARC + Member bars)
+   --------------------------------------------------------------------------- */
+.subnav {
+  background: #efe2cd;
+  border-bottom: 1px solid var(--border);
+}
+
+.subnav .container {
+  padding-top: var(--space-xs);
+  padding-bottom: var(--space-xs);
+}
+
+.subnav .nav-list a {
+  font-size: 0.85rem;
+}
+
+.subnav-member {
+  background: #e5d2b2;
+  border-bottom: 1px solid var(--border-dark);
+}
+
+/* ---------------------------------------------------------------------------
+   8. HERO SECTION
+   --------------------------------------------------------------------------- */
+.hero {
+  background:
+    linear-gradient(160deg, rgba(43,36,29,.72), rgba(106,69,32,.55)),
+    var(--bg-warm);
+  color: #fff;
+  padding: var(--space-2xl) 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: var(--space-sm);
+}
+
+.hero .lead {
+  color: rgba(255,255,255,.88);
+  margin: 0 auto var(--space-lg);
+  max-width: 38em;
+}
+
+.hero--image {
+  background-size: cover;
+  background-position: center;
+}
+
+/* ---------------------------------------------------------------------------
+   9. PAGE SHELL & SECTIONS
+   --------------------------------------------------------------------------- */
+.page-shell {
+  padding: var(--space-xl) 0 var(--space-lg);
+}
+
+.section {
+  padding: var(--space-xl) 0;
+}
+
+.section + .section {
+  border-top: 1px solid var(--border);
+}
+
+.section--alt {
+  background: var(--bg-warm);
+}
+
+/* ---------------------------------------------------------------------------
+   10. PANELS & CARDS
+   --------------------------------------------------------------------------- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel + .panel {
+  margin-top: var(--space-md);
+}
+
+/* Card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-lg);
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   11. BUTTONS
+   --------------------------------------------------------------------------- */
+.button {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 0.7rem 1.6rem;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease;
+}
+
+.button:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Primary (brass fill) */
+.button--primary,
+.button {
+  background: var(--accent);
+  color: #fff;
+}
+
+.button--primary:hover,
+.button:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+/* Secondary (outline) */
+.button--outline {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.button--outline:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Dark (obsidian fill) */
+.button--dark {
+  background: var(--obsidian);
+  color: #fff;
+}
+
+.button--dark:hover {
+  background: #2a2a3a;
+  color: #fff;
+}
+
+/* Large CTA */
+.button--lg {
+  padding: 0.9rem 2.2rem;
+  font-size: 1.1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   12. FORMS
+   --------------------------------------------------------------------------- */
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.form-group small {
+  display: block;
+  color: var(--ink-light);
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+select,
+textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--ink);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(157,106,47,.18);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-top: 0.3rem;
+  accent-color: var(--accent);
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.form-success {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.alert {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-md);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.alert--success {
+  background: #edf8ef;
+  border-color: #a9d8b0;
+  color: #2a6732;
+}
+
+.alert--error {
+  background: #fdeeee;
+  border-color: #e5b3b3;
+  color: #7f2323;
+}
+
+.alert--info {
+  background: #eef5fd;
+  border-color: #b5d0ef;
+  color: #254f7f;
+}
+
+.hp-field {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   13. FAQ ACCORDION
+   --------------------------------------------------------------------------- */
+.faq-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: var(--space-md) 0;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: color .2s ease;
+}
+
+.faq-question:hover {
+  color: var(--accent);
+}
+
+.faq-question::after {
+  content: '+';
+  font-family: var(--font-body);
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-left: var(--space-md);
+  transition: transform .25s ease;
+}
+
+.faq-item.is-open .faq-question::after {
+  content: '\2212';  /* minus sign */
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s ease, padding .3s ease;
+  padding: 0 0 0;
+}
+
+.faq-item.is-open .faq-answer {
+  max-height: 40rem;
+  padding-bottom: var(--space-md);
+}
+
+/* ---------------------------------------------------------------------------
+   14. TIER BADGES / DISTINCTION CARDS
+   --------------------------------------------------------------------------- */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-lg);
+}
+
+.tier-card {
+  text-align: center;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: var(--panel);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.tier-card--copper  { border-color: var(--copper); }
+.tier-card--silver  { border-color: var(--silver); }
+.tier-card--gold    { border-color: var(--gold); }
+.tier-card--obsidian {
+  border-color: var(--obsidian);
+  background: #f3f0ec;
+}
+
+.tier-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-bottom: var(--space-md);
+  font-size: 2rem;
+}
+
+.tier-icon--copper  { background: rgba(184,115,51,.15); color: var(--copper); }
+.tier-icon--silver  { background: rgba(138,154,154,.15); color: var(--silver); }
+.tier-icon--gold    { background: rgba(212,164,55,.15); color: var(--gold); }
+.tier-icon--obsidian { background: rgba(30,30,42,.12); color: var(--obsidian); }
+
+.tier-card h3 {
+  margin-top: 0;
+}
+
+.tier-card .tier-rank {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ---------------------------------------------------------------------------
+   15. STEPS LIST (How It Works)
+   --------------------------------------------------------------------------- */
+.steps {
+  counter-reset: step-counter;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.steps li {
+  counter-increment: step-counter;
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.steps li:last-child {
+  border-bottom: none;
+}
+
+.steps li::before {
+  content: counter(step-counter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   16. BENEFIT LIST (checkmark style)
+   --------------------------------------------------------------------------- */
+.benefit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefit-list li {
+  position: relative;
+  padding: var(--space-sm) 0 var(--space-sm) 1.8rem;
+}
+
+.benefit-list li::before {
+  content: '\2713'; /* checkmark */
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   17. DECORATIVE ELEMENTS
+   --------------------------------------------------------------------------- */
+/* Gear divider */
+.divider-gear {
+  text-align: center;
+  padding: var(--space-lg) 0;
+  color: var(--border-dark);
+  font-size: 1.4rem;
+  letter-spacing: 0.3em;
+}
+
+.divider-gear::before {
+  content: '\2699  \2699  \2699'; /* gear unicode */
+}
+
+/* Ornamental rule */
+.ornament-rule {
+  border: none;
+  border-top: 2px solid var(--border);
+  width: 60px;
+  margin: var(--space-lg) auto;
+}
+
+/* ---------------------------------------------------------------------------
+   18. SITE FOOTER
+   --------------------------------------------------------------------------- */
+.site-footer {
+  background: var(--bg-warm);
+  border-top: 2px solid var(--border);
+  margin-top: var(--space-xl);
+  padding: var(--space-lg) 0 var(--space-md);
+  font-size: 0.88rem;
+  color: var(--ink-light);
+}
+
+.site-footer a {
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   19. UTILITY CLASSES
+   --------------------------------------------------------------------------- */
+.text-center { text-align: center; }
+.text-accent { color: var(--accent); }
+.mt-0  { margin-top: 0; }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mb-0  { margin-bottom: 0; }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   20. RESPONSIVE — TABLET (<=960px)
+   --------------------------------------------------------------------------- */
+@media (max-width: 960px) {
+  .card-grid,
+  .tier-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   21. RESPONSIVE — MOBILE (<=720px)
+   --------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+  /* Show hamburger, collapse nav */
+  .nav-toggle {
+    display: block;
+  }
+
+  .main-nav {
+    display: none;
+    width: 100%;
+    order: 3;
+  }
+
+  .main-nav.is-open {
+    display: block;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .nav-list li {
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-list a {
+    display: block;
+    padding: 0.6rem 0.3rem;
+    border-radius: 0;
+  }
+
+  /* Sub-nav also goes vertical */
+  .subnav .nav-list {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .subnav .nav-list li {
+    border-top: 1px solid var(--border);
+  }
+
+  /* Smaller hero */
+  .hero {
+    padding: var(--space-xl) 0;
+  }
+
+  /* Steps go vertical */
+  .steps li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Tier cards single column */
+  .tier-grid {
+    grid-template-columns: 1fr;
+  }
+}
