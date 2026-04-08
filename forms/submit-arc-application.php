@@ -250,6 +250,29 @@ $appendLogRecord([
     'submission' => $submission,
 ]);
 
+// ---------------------------------------------------------------------------
+//  Insert into database (member starts as "pending")
+// ---------------------------------------------------------------------------
+try {
+    require_once dirname(__DIR__) . '/includes/db.php';
+    $dbPdo = get_db();
+
+    // Check for existing member with same email
+    $existCheck = $dbPdo->prepare('SELECT id, status FROM members WHERE email = ?');
+    $existCheck->execute([strtolower($email)]);
+    $existing = $existCheck->fetch();
+
+    if (!$existing) {
+        $insertStmt = $dbPdo->prepare('
+            INSERT INTO members (name, email, language, country, referral, interests, status)
+            VALUES (?, ?, ?, ?, ?, ?, "pending")
+        ');
+        $insertStmt->execute([$name, strtolower($email), $language, $country, $referral, $interests]);
+    }
+} catch (\Throwable $dbError) {
+    error_log('ARC application DB insert failed for ' . $email . ': ' . $dbError->getMessage());
+}
+
 $mailerliteResult = $sendMailerLiteUpsert($config, $submission);
 
 $appendLogRecord([

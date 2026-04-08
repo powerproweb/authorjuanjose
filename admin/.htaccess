@@ -1,0 +1,7 @@
+# Admin area — protected by site auth-gate (session-based)
+# Additional layer: block direct access to non-PHP files
+<FilesMatch "\.(sqlite|db|json|log|txt)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>

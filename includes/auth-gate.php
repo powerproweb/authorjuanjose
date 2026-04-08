@@ -23,7 +23,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 // --- credentials (username + bcrypt hash) ---
 $_authUser = 'adminjuanjose';
-$_authHash = '$2y$10$bxmKsF8O3O72mfB7zAqv0.Zsf5H8PJB.wAoZMs/E3DqvOSdSmIR5G';
+$_authHash = '$2y$12$T0.dZ0XkZmUMTJ6kSXC/sux9Bg4kp9oPb9O3a.M4bYaAf549jtdW2';
 
 // Already authenticated?
 if (isset($_SESSION['site_auth']) && $_SESSION['site_auth'] === true) {
