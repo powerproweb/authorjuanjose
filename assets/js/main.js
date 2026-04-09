@@ -14,6 +14,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* -----------------------------------------------------------------------
+     Gallery lightbox
+     ----------------------------------------------------------------------- */
+  const lightbox    = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+
+  if (lightbox && lightboxImg) {
+    // Open
+    document.querySelectorAll('.gallery-item[data-full]').forEach(item => {
+      item.addEventListener('click', () => {
+        const src = item.getAttribute('data-full');
+        if (src) {
+          lightboxImg.src = src;
+          lightbox.hidden = false;
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+
+    // Close on button
+    lightbox.querySelector('.lightbox__close').addEventListener('click', () => {
+      lightbox.hidden = true;
+      lightboxImg.src = '';
+      document.body.style.overflow = '';
+    });
+
+    // Close on background click
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.hidden = true;
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lightbox.hidden) {
+        lightbox.hidden = true;
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  /* -----------------------------------------------------------------------
      FAQ accordion
      ----------------------------------------------------------------------- */
   document.querySelectorAll('.faq-question').forEach(btn => {

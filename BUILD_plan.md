@@ -1,5 +1,5 @@
 # AuthorJuanJose.io — BUILD Plan
-> Consolidated from site plan (3/17/2026) and current project state assessment (4/8/2026)
+> Consolidated from site plan (3/17/2026) | Last updated: 4/9/2026
 
 ---
 
@@ -166,12 +166,12 @@ Positioned as a **high-end private reader society** inside the author brand.
 - Related reading across categories
 - Search indexing books, essays, interviews, events
 - Tagging system for themes, topics, genres, series, subjects
-- Press kit for both literary and non-fiction sides
-- Event inquiry form with type distinction
+- ~~Press kit for both literary and non-fiction sides~~ (structure implemented Phase 1, downloadable assets pending)
+- ~~Event inquiry form with type distinction~~ (contact form with category routing implemented Phase 1)
 
 ---
 
-## Current State Assessment (4/8/2026)
+## Current State Assessment (4/9/2026)
 
 ### ✅ Implemented
 - **Site Infrastructure** — PHP includes (header, footer, site-config), auth-gate, .htaccess, 404 page, main CSS, main JS
@@ -182,7 +182,7 @@ Positioned as a **high-end private reader society** inside the author brand.
 - **ARC Honors & Distinctions** — Full four-tier system with descriptions and reward types
 - **ARC FAQ** — Eight Q&A items with accordion UI
 - **Navigation System** — Main nav, ARC sub-nav, member nav all configured
-- **Book Infrastructure (Phase 2)** — Centralized book catalog (`includes/book-catalog.php`), fiction + non-fiction + series page templates, buy-links and related-books components, sample book pages, full CSS for book detail layouts
+- **Book Infrastructure (Phase 2)** — Centralized book catalog, fiction + non-fiction + series page templates, buy-links and related-books components, sample book pages, full CSS
 - **Fiction Landing** (`fiction/index.php`) — catalog grid with published, coming soon, and series sections
 - **Non-Fiction Landing** (`non-fiction/index.php`) — catalog grid with published, coming soon, and empty state
 - **Series Pages** (`series/`) — series listing and individual series pages with reading order
@@ -190,20 +190,21 @@ Positioned as a **high-end private reader society** inside the author brand.
 - **Member Dashboard** — tier display, progress bar, active campaigns, recent reviews
 - **Member Pages** — current missions (accept/decline), submit review (with auto tier promotion), my distinctions, archive record
 - **Admin Panel** (`/admin`) — dashboard stats, member management (approve/suspend/reset), campaign management (create/activate/invite/close), review moderation (verify/unverify)
+- **About (Phase 1)** — Biography, personal life, fiction/non-fiction dual-lane cards, "Why I Write" philosophy
+- **Events (Phase 1)** — Event type cards (launches, speaking, podcasts, signings), upcoming events section, booking inquiry
+- **Journal (Phase 1)** — PHP-array entry system, category filters, welcome post, newsletter CTA
+- **Media (Phase 1)** — Press bio, 6 interview topic cards, press kit structure (downloads pending), media contact CTA
+- **Contact (Phase 1)** — Category-routed inquiry form (5 types), CSRF, honeypot, validation, NDJSON logging, flash messages
+- **Contact Form Handler** (`forms/submit-contact.php`) — server-side processing and storage
 
-### 🔲 Placeholder (Stub Pages)
-- About / Biography (`about.php`)
-- Events (`events.php`)
-- Journal (`journal.php`)
-- Media / Press Kit (`media.php`)
-- Contact form (`contact.php`)
+### ✅ All Pages Implemented — No Remaining Placeholders
 
 ### 🔲 Not Started
 - Coloring Book Gallery (photo upload + account-linked posting)
-- Newsletter signup system
+- Newsletter signup system (segmented by interest)
 - Search functionality
 - Tagging system
-- Press kit downloadable assets
+- Press kit downloadable assets (author photos, book one-sheets, brand assets)
 - Onboarding email sequences
 - Language-specific campaign flows
 
@@ -211,15 +212,13 @@ Positioned as a **high-end private reader society** inside the author brand.
 
 ## Development Roadmap
 
-### Phase 1 — Content Pages (Next)
-Fill in the placeholder pages with real content:
-1. **About** — Author biography, mission, "Why I Write"
-2. **Fiction Landing** — Featured titles, catalog structure, series groupings
-3. **Non-Fiction Landing** — Featured titles, essay/resource structure, ARC integration
-4. **Contact** — Category-routed inquiry form
-5. **Media** — Press kit, author photos, interview topics, downloadable assets
-6. **Events** — Event listing structure, inquiry form
-7. **Journal** — Blog/update system with post template
+### Phase 1 — Content Pages ✅ COMPLETE
+1. ~~About — Author biography, mission, "Why I Write"~~
+2. ~~Contact — Category-routed inquiry form (5 types) + form handler~~
+3. ~~Media — Press bio, interview topics, press kit structure~~
+4. ~~Events — Event type cards, upcoming events, booking inquiry~~
+5. ~~Journal — PHP-array entry system with categories and welcome post~~
+6. Fiction/Non-Fiction Landings — already implemented in Phase 2
 
 ### Phase 2 — Book Infrastructure ✅ COMPLETE
 1. ~~Individual fiction book page template~~

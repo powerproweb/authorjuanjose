@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/email-templates.php';
 
 $pdo = get_db();
 $message = '';
@@ -16,10 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $book     = trim((string)($_POST['book_slug'] ?? ''));
         $format   = (string)($_POST['arc_format'] ?? 'ebook');
         $deadline = trim((string)($_POST['review_deadline'] ?? ''));
+        $lang     = (string)($_POST['language'] ?? 'both');
+        if (!in_array($lang, ['English', 'Spanish', 'both'], true)) $lang = 'both';
 
         if ($title !== '') {
-            $stmt = $pdo->prepare('INSERT INTO campaigns (title, book_slug, description, arc_format, review_deadline, status) VALUES (?, ?, ?, ?, ?, "draft")');
-            $stmt->execute([$title, $book, $desc, $format, $deadline !== '' ? $deadline : null]);
+            $stmt = $pdo->prepare('INSERT INTO campaigns (title, book_slug, description, arc_format, review_deadline, language, status) VALUES (?, ?, ?, ?, ?, ?, "draft")');
+            $stmt->execute([$title, $book, $desc, $format, $deadline !== '' ? $deadline : null, $lang]);
             $message = 'Campaign "' . $title . '" created as draft.';
         }
     } elseif ($action === 'activate') {
@@ -32,14 +35,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'Campaign closed.';
     } elseif ($action === 'invite_all') {
         $id = (int)($_POST['campaign_id'] ?? 0);
-        // Invite all active members who aren't already invited
-        $stmt = $pdo->prepare('
+        // Get campaign language to filter members
+        $camp = $pdo->prepare('SELECT language, title, review_deadline FROM campaigns WHERE id = ?');
+        $camp->execute([$id]);
+        $campData = $camp->fetch();
+        $camp_lang = $campData['language'] ?? 'both';
+
+        // Build member filter based on campaign language
+        if ($camp_lang === 'both') {
+            $member_filter = 'status = "active"';
+        } else {
+            $member_filter = 'status = "active" AND language = "' . $camp_lang . '"';
+        }
+
+        $stmt = $pdo->prepare("
             INSERT OR IGNORE INTO campaign_invites (campaign_id, member_id)
-            SELECT ?, id FROM members WHERE status = "active"
+            SELECT ?, id FROM members WHERE {$member_filter}
             AND id NOT IN (SELECT member_id FROM campaign_invites WHERE campaign_id = ?)
-        ');
+        ");
         $stmt->execute([$id, $id]);
         $message = $stmt->rowCount() . ' member(s) invited.';
+    } elseif ($action === 'invite_and_notify') {
+        $id = (int)($_POST['campaign_id'] ?? 0);
+        $camp = $pdo->prepare('SELECT * FROM campaigns WHERE id = ?');
+        $camp->execute([$id]);
+        $campData = $camp->fetch();
+
+        if ($campData) {
+            $camp_lang = $campData['language'] ?? 'both';
+            if ($camp_lang === 'both') {
+                $member_filter = 'status = "active"';
+            } else {
+                $member_filter = 'status = "active" AND language = "' . $camp_lang . '"';
+            }
+
+            // Invite
+            $pdo->prepare("
+                INSERT OR IGNORE INTO campaign_invites (campaign_id, member_id)
+                SELECT ?, id FROM members WHERE {$member_filter}
+                AND id NOT IN (SELECT member_id FROM campaign_invites WHERE campaign_id = ?)
+            ")->execute([$id, $id]);
+
+            // Get all invited members for this campaign to send notifications
+            $invited = $pdo->prepare('
+                SELECT m.id, m.name, m.email, m.language
+                FROM campaign_invites ci
+                JOIN members m ON m.id = ci.member_id
+                WHERE ci.campaign_id = ? AND ci.status = "invited"
+            ');
+            $invited->execute([$id]);
+            $invitedMembers = $invited->fetchAll();
+
+            $queued = 0;
+            foreach ($invitedMembers as $m) {
+                // Queue email
+                $pdo->prepare('INSERT INTO email_queue (recipient_email, recipient_name, template_key, language) VALUES (?, ?, ?, ?)')
+                    ->execute([$m['email'], $m['name'], 'campaign_invite', $m['language']]);
+                // Create notification
+                $pdo->prepare('INSERT INTO notifications (member_id, type, message) VALUES (?, "invite", ?)')
+                    ->execute([$m['id'], 'New campaign: ' . $campData['title']]);
+                $queued++;
+            }
+            $message = $queued . ' member(s) invited and notified.';
+        }
     }
 }
 
@@ -96,6 +154,15 @@ require_once dirname(__DIR__) . '/includes/header.php';
         <label for="review_deadline">Review Deadline</label>
         <input id="review_deadline" name="review_deadline" type="date">
       </div>
+      <div class="form-group">
+        <label for="language">Language</label>
+        <select id="language" name="language">
+          <option value="both">Both (English &amp; Spanish)</option>
+          <option value="English">English Only</option>
+          <option value="Spanish">Spanish Only</option>
+        </select>
+        <small>Members will be invited based on their language preference.</small>
+      </div>
       <button class="button" type="submit">Create Campaign</button>
     </form>
   </section>
@@ -116,7 +183,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
               </span>
               <span class="admin-list-item__meta">
                 <?php echo (int)$c['invite_count']; ?> invited &middot;
-                <?php echo (int)$c['review_count']; ?> reviews
+                <?php echo (int)$c['review_count']; ?> reviews &middot;
+                Lang: <?php echo htmlspecialchars($c['language'] ?? 'both', ENT_QUOTES, 'UTF-8'); ?>
                 <?php if (!empty($c['review_deadline'])): ?>
                   &middot; Deadline: <?php echo htmlspecialchars($c['review_deadline'], ENT_QUOTES, 'UTF-8'); ?>
                 <?php endif; ?>
@@ -129,7 +197,8 @@ require_once dirname(__DIR__) . '/includes/header.php';
                   <button class="button" type="submit" name="action" value="activate">Activate</button>
                 <?php endif; ?>
                 <?php if ($c['status'] === 'active'): ?>
-                  <button class="button button--outline" type="submit" name="action" value="invite_all">Invite All Members</button>
+                  <button class="button" type="submit" name="action" value="invite_and_notify">Invite &amp; Notify</button>
+                  <button class="button button--outline" type="submit" name="action" value="invite_all">Invite Only</button>
                   <button class="button button--outline" type="submit" name="action" value="close">Close</button>
                 <?php endif; ?>
               </form>

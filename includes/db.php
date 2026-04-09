@@ -74,9 +74,18 @@ function init_schema(PDO $pdo): void
             arc_format      TEXT    NOT NULL DEFAULT "ebook" CHECK(arc_format IN ("ebook","pdf","epub")),
             review_deadline TEXT,
             status          TEXT    NOT NULL DEFAULT "draft" CHECK(status IN ("draft","active","closed")),
+            language        TEXT    NOT NULL DEFAULT "both" CHECK(language IN ("English","Spanish","both")),
             created_at      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
     ');
+
+    // Migration: add language column if missing (existing DBs)
+    $cols = $pdo->query('PRAGMA table_info(campaigns)')->fetchAll();
+    $has_language = false;
+    foreach ($cols as $c) { if ($c['name'] === 'language') { $has_language = true; break; } }
+    if (!$has_language) {
+        $pdo->exec('ALTER TABLE campaigns ADD COLUMN language TEXT NOT NULL DEFAULT "both"');
+    }
 
     $pdo->exec('
         CREATE TABLE IF NOT EXISTS campaign_invites (
@@ -109,6 +118,55 @@ function init_schema(PDO $pdo): void
             member_id INTEGER NOT NULL REFERENCES members(id) ON DELETE CASCADE,
             tier      INTEGER NOT NULL CHECK(tier BETWEEN 1 AND 4),
             earned_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+
+    // Phase 4 tables
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            email         TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+            name          TEXT    NOT NULL DEFAULT "",
+            interest      TEXT    NOT NULL DEFAULT "both" CHECK(interest IN ("fiction","non-fiction","both")),
+            subscribed_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS email_queue (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            recipient_email TEXT    NOT NULL,
+            recipient_name  TEXT    NOT NULL DEFAULT "",
+            template_key    TEXT    NOT NULL,
+            language        TEXT    NOT NULL DEFAULT "English",
+            scheduled_at    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            sent_at         TEXT,
+            status          TEXT    NOT NULL DEFAULT "pending" CHECK(status IN ("pending","sent","failed")),
+            error_message   TEXT    NOT NULL DEFAULT ""
+        )
+    ');
+
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS notifications (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id  INTEGER NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+            type       TEXT    NOT NULL DEFAULT "system" CHECK(type IN ("invite","reminder","promotion","system")),
+            message    TEXT    NOT NULL,
+            read       INTEGER NOT NULL DEFAULT 0 CHECK(read IN (0,1)),
+            created_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS gallery_uploads (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id      INTEGER NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+            image_path     TEXT    NOT NULL,
+            thumbnail_path TEXT    NOT NULL DEFAULT "",
+            caption        TEXT    NOT NULL DEFAULT "",
+            status         TEXT    NOT NULL DEFAULT "pending" CHECK(status IN ("pending","approved","rejected")),
+            uploaded_at    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            approved_at    TEXT
         )
     ');
 }
