@@ -61,7 +61,7 @@ require_once $project_root . '/includes/header.php';
       <?php if (!empty($book['tags'])): ?>
         <div class="tag-list">
           <?php foreach ($book['tags'] as $tag): ?>
-            <span class="tag"><?php echo htmlspecialchars($tag, ENT_QUOTES, 'UTF-8'); ?></span>
+            <a class="tag" href="/tags/view?tag=<?php echo urlencode(strtolower($tag)); ?>"><?php echo htmlspecialchars($tag, ENT_QUOTES, 'UTF-8'); ?></a>
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
@@ -160,6 +160,34 @@ require_once $project_root . '/includes/header.php';
   $related_type = 'non-fiction';
   include $project_root . '/includes/components/related-books.php';
   ?>
+
+  <!-- Cross-Category Suggestions -->
+  <?php $cross = get_cross_category_suggestions($book, 'non-fiction'); ?>
+  <?php if (count($cross) > 0): ?>
+    <div class="divider-gear"></div>
+    <section class="section">
+      <p class="section-label">From the Other Side</p>
+      <h2>Fiction You Might Enjoy</h2>
+      <div class="card-grid">
+        <?php foreach ($cross as $cb): ?>
+          <a class="book-card" href="/fiction/<?php echo htmlspecialchars($cb['slug'], ENT_QUOTES, 'UTF-8'); ?>">
+            <?php if (!empty($cb['cover'])): ?>
+              <div class="book-card__cover">
+                <img src="<?php echo htmlspecialchars($cb['cover'], ENT_QUOTES, 'UTF-8'); ?>"
+                     alt="<?php echo htmlspecialchars($cb['short_title'] ?? $cb['title'], ENT_QUOTES, 'UTF-8'); ?>"
+                     loading="lazy">
+              </div>
+            <?php endif; ?>
+            <div class="book-card__info">
+              <span class="book-badge book-badge--fiction">Fiction</span>
+              <h3><?php echo htmlspecialchars($cb['short_title'] ?? $cb['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+              <p><?php echo htmlspecialchars($cb['hook'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+            </div>
+          </a>
+        <?php endforeach; ?>
+      </div>
+    </section>
+  <?php endif; ?>
 
   <!-- ARC Reader Club CTA -->
   <div class="divider-gear"></div>
