@@ -9,6 +9,14 @@ includes/auth-gate.php
 # FORM UPLOADS / STORAGE
 # ============================================================
 forms/storage/
+forms/mailerlite-config.php
+
+# ============================================================
+# DATABASE — SQLite files (never commit)
+# ============================================================
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
 
 # ============================================================
 # BACKUP / BROKEN FILES

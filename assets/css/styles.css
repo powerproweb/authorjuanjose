@@ -747,7 +747,600 @@ textarea {
 }
 
 /* ---------------------------------------------------------------------------
-   19. UTILITY CLASSES
+   19. BOOK DETAIL LAYOUT
+   --------------------------------------------------------------------------- */
+.book-detail {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+.book-detail__cover {
+  position: sticky;
+  top: calc(60px + var(--space-lg));
+}
+
+.book-detail__cover img {
+  width: 100%;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.book-detail__info {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .book-detail {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  .book-detail__cover {
+    max-width: 220px;
+    margin: 0 auto;
+    position: static;
+  }
+}
+
+/* Book prose (synopsis / premise) */
+.book-prose {
+  max-width: 65ch;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+/* Book excerpt blockquote */
+.book-excerpt {
+  border-left: 4px solid var(--accent);
+  padding: var(--space-md) var(--space-lg);
+  margin: 0;
+  background: var(--bg-warm);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-style: italic;
+  color: var(--ink-light);
+  max-width: 65ch;
+}
+
+/* ---------------------------------------------------------------------------
+   20. BOOK CARDS (catalog grids)
+   --------------------------------------------------------------------------- */
+a.book-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+a.book-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.book-card--coming-soon {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  opacity: .85;
+}
+
+.book-card__cover {
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--bg-warm);
+}
+
+.book-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-card__info {
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+
+.book-card__info h3 {
+  margin-top: 0;
+  margin-bottom: var(--space-xs);
+}
+
+.book-card__info p {
+  font-size: 0.92rem;
+  color: var(--ink-light);
+}
+
+.book-card__series {
+  font-size: 0.8rem !important;
+  font-weight: 600;
+  color: var(--accent) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: var(--space-sm);
+}
+
+/* ---------------------------------------------------------------------------
+   21. BUY LINKS
+   --------------------------------------------------------------------------- */
+.buy-links {
+  margin-top: var(--space-lg);
+}
+
+.buy-links__heading {
+  font-size: 1rem;
+  margin-bottom: var(--space-sm);
+}
+
+.buy-links__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.buy-links__btn {
+  font-size: 0.88rem;
+  padding: 0.55rem 1.2rem;
+}
+
+/* ---------------------------------------------------------------------------
+   22. REVIEW & ENDORSEMENT CARDS
+   --------------------------------------------------------------------------- */
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+.review-card {
+  background: var(--bg-warm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+.review-card blockquote {
+  margin: 0;
+  font-style: italic;
+  color: var(--ink-light);
+}
+
+.review-card cite {
+  display: block;
+  margin-top: var(--space-md);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.review-source {
+  display: block;
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--ink-light);
+}
+
+/* ---------------------------------------------------------------------------
+   23. TAGS
+   --------------------------------------------------------------------------- */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--border-dark);
+  border-radius: 2rem;
+  color: var(--ink-light);
+  background: var(--bg-warm);
+}
+
+.tag--lg {
+  font-size: 0.88rem;
+  padding: 0.4rem 1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   24. BOOK BADGES
+   --------------------------------------------------------------------------- */
+.book-badge {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.book-badge--coming-soon {
+  background: rgba(157,106,47,.12);
+  color: var(--accent-dark);
+}
+
+/* ---------------------------------------------------------------------------
+   25. READING ORDER LIST
+   --------------------------------------------------------------------------- */
+.reading-order {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: reading-order;
+}
+
+.reading-order li {
+  counter-increment: reading-order;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.reading-order li:last-child {
+  border-bottom: none;
+}
+
+.reading-order li::before {
+  content: counter(reading-order);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.reading-order li.is-current {
+  background: rgba(157,106,47,.06);
+  border-radius: var(--radius-sm);
+  padding-left: var(--space-sm);
+  padding-right: var(--space-sm);
+}
+
+.reading-order__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-left: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   26. SERIES BOOK LIST (series detail page)
+   --------------------------------------------------------------------------- */
+.series-book-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.series-book-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.series-book-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.series-book-item__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.series-book-item__cover {
+  flex-shrink: 0;
+  width: 80px;
+}
+
+.series-book-item__cover img {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.series-book-item__info h3 {
+  margin-top: 0;
+  margin-bottom: var(--space-xs);
+}
+
+.series-book-item__info p {
+  font-size: 0.92rem;
+  color: var(--ink-light);
+  margin-bottom: var(--space-xs);
+}
+
+@media (max-width: 720px) {
+  .series-book-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .series-book-item__cover {
+    width: 100px;
+  }
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   27. DASHBOARD — TIER DISPLAY
+   --------------------------------------------------------------------------- */
+.dash-tier {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+}
+
+.dash-tier__icon {
+  flex-shrink: 0;
+}
+
+.dash-tier__info {
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   28. PROGRESS BAR
+   --------------------------------------------------------------------------- */
+.progress-bar {
+  width: 100%;
+  max-width: 400px;
+  height: 12px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: var(--space-sm) 0;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width .4s ease;
+}
+
+.progress-bar__fill--none    { background: var(--border-dark); }
+.progress-bar__fill--copper  { background: var(--copper); }
+.progress-bar__fill--silver  { background: var(--silver); }
+.progress-bar__fill--gold    { background: var(--gold); }
+.progress-bar__fill--obsidian { background: var(--obsidian); }
+
+.progress-label {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   29. CAMPAIGN CARDS & LIST
+   --------------------------------------------------------------------------- */
+.campaign-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.campaign-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.campaign-card--closed {
+  opacity: .65;
+}
+
+.campaign-card__info h3 {
+  margin-top: 0;
+  margin-bottom: var(--space-xs);
+}
+
+.campaign-card__deadline {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+}
+
+.campaign-card__actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------------------
+   30. CAMPAIGN STATUS BADGES
+   --------------------------------------------------------------------------- */
+.campaign-status {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  margin-right: var(--space-xs);
+}
+
+.campaign-status--invited    { background: #eef5fd; color: #254f7f; }
+.campaign-status--accepted   { background: #edf8ef; color: #2a6732; }
+.campaign-status--declined   { background: #fdeeee; color: #7f2323; }
+.campaign-status--completed  { background: #edf8ef; color: #2a6732; }
+.campaign-status--active     { background: #edf8ef; color: #2a6732; }
+.campaign-status--draft      { background: #f5f0e0; color: var(--accent-dark); }
+.campaign-status--closed     { background: #eee; color: #666; }
+.campaign-status--pending    { background: #fdf6e3; color: var(--accent-dark); }
+.campaign-status--suspended  { background: #fdeeee; color: #7f2323; }
+
+/* ---------------------------------------------------------------------------
+   31. REVIEW LIST (dashboard/archive)
+   --------------------------------------------------------------------------- */
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.review-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.review-list-item:last-child {
+  border-bottom: none;
+}
+
+.review-list-item__platform {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  margin-left: var(--space-sm);
+}
+
+.review-list-item__date {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   32. ADMIN LIST
+   --------------------------------------------------------------------------- */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.admin-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-list-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.admin-list-item__email {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+}
+
+.admin-list-item__meta {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+}
+
+.admin-list-item__actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+/* Locked/earned tier card states */
+.tier-card--locked {
+  opacity: .5;
+}
+
+.tier-card--earned {
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  .dash-tier {
+    flex-direction: column;
+  }
+  .campaign-card {
+    flex-direction: column;
+  }
+  .admin-list-item {
+    flex-direction: column;
+  }
+  .review-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   33. UTILITY CLASSES
    --------------------------------------------------------------------------- */
 .text-center { text-align: center; }
 .text-accent { color: var(--accent); }

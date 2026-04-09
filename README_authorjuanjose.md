@@ -4,7 +4,50 @@ Official author website for Juan Jose — a steampunk science fiction author.
 
 The site features book listings, an ARC (Advance Reader Copy) Reader Club with membership features, author bio, events, journal, media, and contact pages.
 
----
+### -<<<|||>>>--<<<|||>>>--<<<|||>>>- BEGIN - TO DO NEXT -<<<|||>>>--<<<|||>>>--<<<|||>>>- ###
+
+### -- What's next — Phase 1 (Content Pages):
+
+These 7 pages exist but are empty stubs with placeholder text:
+
+1. About — needs your biography, mission, "Why I Write" content
+2. Fiction — needs book catalog structure, featured titles, series groupings
+3. Non-Fiction — needs catalog, essay/resource structure, ARC integration
+4. Contact — needs the category-routed inquiry form (general, media, speaking, reader, ARC)
+5. Media — needs press kit, author photos, interview topics, downloadable assets
+6. Events — needs event listing and inquiry form
+7. Journal — needs blog/post system with a post template
+
+About and Contact are probably the quickest wins since they don't require building a templating system. Fiction and Non-Fiction are the meatiest — they set up the "two doorways" concept that the whole site architecture is built around.
+
+Want to start knocking out one of these? If so, which page do you want to tackle first?
+I dont want to do those first what is next on the list
+P After Phase 1, the roadmap has:
+
+### -- Phase 2 — Book Infrastructure:
+1. Individual fiction book page template
+2. Individual non-fiction book page template
+3. Series/collection page template
+4. Buy-link system
+5. Related books / cross-category suggestions
+
+### -- Phase 3 — Member System:
+1. Member authentication (login/session)
+2. Member dashboard
+3. Current Missions (active ARC campaigns)
+4. Submit Review flow
+5. My Distinctions (tier tracking)
+6. Archive Record (participation history)
+7. Admin tools for managing members and campaigns
+
+### -- Phase 4 — Engagement Features:
+1. Newsletter signup (segmented)
+2. Onboarding email sequences
+3. Campaign invitation system
+4. Language-specific flows
+5. Coloring Book Gallery
+
+### -<<<|||>>>--<<<|||>>>--<<<|||>>>- END - TO DO NEXT -<<<|||>>>--<<<|||>>>--<<<|||>>>- ###
 
 ## Tech Stack
 
