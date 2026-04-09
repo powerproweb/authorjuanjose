@@ -1374,7 +1374,238 @@ a.book-card:hover {
 }
 
 /* ---------------------------------------------------------------------------
-   34. UTILITY CLASSES
+   34. NEWSLETTER SIGNUP
+   --------------------------------------------------------------------------- */
+.newsletter-signup {
+  margin: var(--space-lg) 0;
+}
+
+.newsletter-signup__heading {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-xs);
+}
+
+.newsletter-signup__text {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+  margin-bottom: var(--space-md);
+}
+
+.newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.newsletter-form--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.newsletter-form--inline .newsletter-form__field--name {
+  display: none;
+}
+
+.newsletter-form__field input,
+.newsletter-form__field select {
+  width: 100%;
+}
+
+.newsletter-form--inline .newsletter-form__field {
+  flex: 1;
+  min-width: 140px;
+}
+
+.newsletter-form--inline .newsletter-form__field:last-child {
+  flex: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   35. GALLERY
+   --------------------------------------------------------------------------- */
+.gallery-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--space-md);
+}
+
+.gallery-grid--admin {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.gallery-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.gallery-item--admin {
+  cursor: default;
+}
+
+.gallery-item--admin:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.gallery-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.gallery-item__info {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+.gallery-item__info strong {
+  font-size: 0.9rem;
+}
+
+.gallery-item__info p {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  margin: var(--space-xs) 0 0;
+}
+
+.gallery-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+.gallery-pagination__info {
+  font-size: 0.9rem;
+  color: var(--ink-light);
+}
+
+/* ---------------------------------------------------------------------------
+   36. LIGHTBOX
+   --------------------------------------------------------------------------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox__close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.lightbox__img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 40px rgba(0,0,0,.5);
+}
+
+/* ---------------------------------------------------------------------------
+   37. NOTIFICATIONS
+   --------------------------------------------------------------------------- */
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item__icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.notification-item__date {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   38. FOOTER GRID
+   --------------------------------------------------------------------------- */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+.footer-grid__copy {
+  text-align: right;
+}
+
+.footer-grid__copy p {
+  margin-bottom: var(--space-xs);
+}
+
+@media (max-width: 720px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  .footer-grid__copy {
+    text-align: left;
+  }
+  .newsletter-form--inline {
+    flex-direction: column;
+  }
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   39. UTILITY CLASSES
    --------------------------------------------------------------------------- */
 .text-center { text-align: center; }
 .text-accent { color: var(--accent); }

@@ -35,6 +35,18 @@ $stmt = $pdo->prepare('
 $stmt->execute([$arc_member['id']]);
 $recent_reviews = $stmt->fetchAll();
 
+// Mark notifications as read
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'mark_read') {
+    $pdo->prepare('UPDATE notifications SET read = 1 WHERE member_id = ? AND read = 0')->execute([$arc_member['id']]);
+    header('Location: /arc-reader-club/dashboard');
+    exit;
+}
+
+// Unread notifications
+$stmt = $pdo->prepare('SELECT * FROM notifications WHERE member_id = ? AND read = 0 ORDER BY created_at DESC LIMIT 10');
+$stmt->execute([$arc_member['id']]);
+$notifications = $stmt->fetchAll();
+
 $page_title = 'Dashboard | ARC Reader Club';
 $show_arc_sub_navigation = true;
 $show_member_navigation = true;
@@ -47,6 +59,29 @@ require_once dirname(__DIR__) . '/includes/header.php';
   <p class="lead">Your ARC Reader Club dashboard.</p>
 
   <hr class="ornament-rule">
+
+  <!-- Notifications -->
+  <?php if (count($notifications) > 0): ?>
+    <section class="section">
+      <p class="section-label">Notifications</p>
+      <h2><?php echo count($notifications); ?> New</h2>
+      <div class="notification-list">
+        <?php foreach ($notifications as $n): ?>
+          <div class="notification-item notification-item--<?php echo htmlspecialchars($n['type'], ENT_QUOTES, 'UTF-8'); ?>">
+            <span class="notification-item__icon">
+              <?php echo match($n['type']) { 'invite' => '&#128233;', 'reminder' => '&#9200;', 'promotion' => '&#127942;', default => '&#9881;' }; ?>
+            </span>
+            <span><?php echo htmlspecialchars($n['message'], ENT_QUOTES, 'UTF-8'); ?></span>
+            <span class="notification-item__date"><?php echo htmlspecialchars($n['created_at'], ENT_QUOTES, 'UTF-8'); ?></span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+      <form method="post" class="mt-md">
+        <button class="button button--outline" type="submit" name="action" value="mark_read">Mark All as Read</button>
+      </form>
+    </section>
+    <div class="divider-gear"></div>
+  <?php endif; ?>
 
   <!-- Tier & Progress -->
   <section class="section">
