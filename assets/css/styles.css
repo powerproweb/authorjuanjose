@@ -1340,7 +1340,41 @@ a.book-card:hover {
 }
 
 /* ---------------------------------------------------------------------------
-   33. UTILITY CLASSES
+   33. JOURNAL ENTRIES
+   --------------------------------------------------------------------------- */
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.journal-entry {
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border);
+}
+
+.journal-entry:last-child {
+  border-bottom: none;
+}
+
+.journal-entry__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.journal-entry__date {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+}
+
+.journal-entry__title {
+  margin-top: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   34. UTILITY CLASSES
    --------------------------------------------------------------------------- */
 .text-center { text-align: center; }
 .text-accent { color: var(--accent); }
