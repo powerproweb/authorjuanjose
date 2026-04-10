@@ -130,44 +130,50 @@ Positioned as a **high-end private reader society** inside the author brand.
 - **My Distinctions** — current tier + progress, all 4 tiers (earned/locked/in-progress), distinction history
 - **Archive Record** — summary stats, full campaign and review history
 
-### Member Database (IMPLEMENTED — Phase 3)
+### Member Database (IMPLEMENTED — Phases 3–5)
 - **SQLite** via PDO at `data/arc.sqlite` (protected by `.htaccess` deny-all)
-- **5 tables**: members, campaigns, campaign_invites, reviews, distinctions
+- **10 tables**: members, campaigns, campaign_invites, reviews, distinctions, newsletter_subscribers, email_queue, notifications, gallery_uploads, search_index
 - **Auto-schema**: tables created on first connection
 - **Tier auto-promotion**: 1→Copper Cog, 3→Silver Steamwright, 6→Golden Gearmaster, 10→Obsidian Chrononaut
 - **Auth guard**: `includes/member-auth.php` — session check, member data load, redirect if unauthenticated
 - **Join form integration**: DB insert alongside MailerLite/file storage
 
-### Admin Panel (IMPLEMENTED — Phase 3)
+### Admin Panel (IMPLEMENTED — Phases 3–6)
 - **Dashboard** (`/admin`) — stats: members, pending approvals, campaigns, unverified reviews
 - **Members** (`/admin/members`) — filter by status, approve (generates temp password), suspend, reactivate, reset password
-- **Campaigns** (`/admin/campaigns`) — create, activate, invite all members, close
+- **Campaigns** (`/admin/campaigns`) — create with language selector, activate, invite & notify (language-filtered), close
 - **Reviews** (`/admin/reviews`) — filter by verified/unverified, verify/unverify
+- **Email Queue** (`/admin/email-queue`) — stats, filters, manual queue processing
+- **Gallery** (`/admin/gallery`) — approve/reject/delete uploaded images
+- **Search Index** (`/admin/search`) — rebuild search index
+- **Sitemap** (`/admin/sitemap`) — generate sitemap.xml
 
 ### ARC System Layers
 1. Structure — application flow, membership rules, tier definitions ✅
-2. Content — page copy, email sequences, campaign messaging (email sequences pending)
-3. Technical — form handling, MailerLite integration, member auth, dashboard ✅
-4. Visual — tier badges, emblems, certificates (physical items pending)
+2. Content — page copy, email sequences (EN+ES), campaign messaging ✅
+3. Technical — form handling, MailerLite, member auth, dashboard, email queue/cron ✅
+4. Visual — tier badges on pages, honor roll (physical certificates pending)
 
-### Future ARC Features
-- Onboarding email sequence
-- Language-specific follow-up flows (English / Spanish)
-- Printable certificates, commemorative items
-- Digital honor roll
-- Branded digital badges
+### Future ARC Enhancements
+- Printable certificates, commemorative physical items
+- Branded downloadable digital badges
 
 ---
 
-## Platform Features (Planned)
-- Segmented newsletter signup (fiction vs. non-fiction interest)
-- Filtered library by fiction / non-fiction / genre / topic
-- "Start Here" recommendation engine
-- Related reading across categories
-- Search indexing books, essays, interviews, events
-- Tagging system for themes, topics, genres, series, subjects
-- ~~Press kit for both literary and non-fiction sides~~ (structure implemented Phase 1, downloadable assets pending)
-- ~~Event inquiry form with type distinction~~ (contact form with category routing implemented Phase 1)
+## Platform Features (ALL IMPLEMENTED)
+- ~~Segmented newsletter signup~~ ✅ Phase 4 — fiction/non-fiction/both, sitewide footer embed
+- ~~Filtered library~~ ✅ Phase 5 — `/library` with type/tag/status URL filters
+- ~~"Start Here" recommendation engine~~ ✅ Phase 5 — 2-step question flow with scored results
+- ~~Related reading across categories~~ ✅ Phase 5 — "From the Other Side" cross-category suggestions
+- ~~Search indexing~~ ✅ Phase 5 — SQLite search_index, highlighted excerpts, admin rebuild
+- ~~Tagging system~~ ✅ Phase 5 — tag cloud, tag view pages, clickable tag pills
+- ~~Press kit~~ ✅ Phase 1 + Phase 6 — structure + download links
+- ~~Event inquiry form~~ ✅ Phase 1 — contact form with 5 category types
+- ~~Coloring Book Gallery~~ ✅ Phase 4 — upload, GD resize, lightbox, admin moderation
+- ~~Email system~~ ✅ Phase 4 — 8 templates (EN+ES), queue, cron processor
+- ~~Campaign notifications~~ ✅ Phase 4 — Invite & Notify + in-app dashboard notifications
+- ~~Honor roll~~ ✅ Phase 6 — public page showing distinguished members
+- ~~SEO~~ ✅ Phase 6 — meta descriptions, OG, Twitter Cards, JSON-LD, robots.txt, sitemap
 
 ---
 
@@ -246,11 +252,14 @@ To launch: set `SITE_AUTH_GATE_ENABLED = false` in `auth-gate.php`.
 ## Tech Stack
 - **Language:** PHP 8.1+ (`declare(strict_types=1)`) — local dev on PHP 8.4
 - **Server:** Apache on BlueHost (cPanel)
-- **Frontend:** PHP + HTML + CSS + vanilla JS
-- **Database:** SQLite via PDO (`data/arc.sqlite`)
-- **Email:** MailerLite (ARC signups)
+- **Frontend:** PHP + HTML + CSS (45+ sections) + vanilla JS
+- **Database:** SQLite via PDO (`data/arc.sqlite`) — 10 tables, 4 performance indexes
+- **Email:** MailerLite (signups) + PHP `mail()` via email queue/cron (8 templates, EN+ES)
+- **Image Processing:** PHP GD (gallery upload resize + thumbnails)
 - **Deployment:** Direct upload via cPanel / FTP/SFTP — no build step
-- **Auth:** Session-based (`auth-gate.php` for dev, member auth for ARC via `member-auth.php`)
+- **Auth:** Session-based (`auth-gate.php` for dev, `member-auth.php` for ARC members)
+- **Cron:** `cron/send-emails.php` — email queue processor (cPanel cron on production)
+- **SEO:** Per-page meta, OG/Twitter Cards, canonical, JSON-LD, robots.txt, sitemap.xml
 
 ---
 
