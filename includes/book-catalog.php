@@ -21,12 +21,12 @@ declare(strict_types=1);
 $fiction_books = [
 
     'michael-strogoff' => [
-        'title'          => 'Jules Verne's Michael Strogoff, or The Courier of the Czar',
+        'title'          => "Jules Verne's Michael Strogoff, or The Courier of the Czar",
         'short_title'    => 'Michael Strogoff',
         'slug'           => 'michael-strogoff',
         'cover'          => '/assets/images/books/michael-strogoff.jpg',
         'hook'           => 'A gripping two-book adventure novel set in 19th-century Russia during a Tartar rebellion against the Czar.',
-        'synopsis'       => 'The story follows Michael Strogoff, a brave and resourceful courier entrusted with a vital mission: to deliver an urgent message to the governor of Irkutsk and warn him of a treacherous plot led by the cunning traitor Ivan Ogareff. Traveling over 5,000 miles through the harsh Siberian landscape, Michael faces relentless dangers, including enemy spies, brutal Tartar warriors, and the ever-present threat of exposure. Combining elements of historical fiction, adventure, and espionage, Verne's novel is a testament to courage, duty, and resilience.',
+        'synopsis'       => "The story follows Michael Strogoff, a brave and resourceful courier entrusted with a vital mission: to deliver an urgent message to the governor of Irkutsk and warn him of a treacherous plot led by the cunning traitor Ivan Ogareff. Traveling over 5,000 miles through the harsh Siberian landscape, Michael faces relentless dangers, including enemy spies, brutal Tartar warriors, and the ever-present threat of exposure. Combining elements of historical fiction, adventure, and espionage, Verne's novel is a testament to courage, duty, and resilience.",
         'excerpt'        => '', // Add an excerpt passage when ready
         'series_slug'    => 'steampunk-chronicles',
         'series_order'   => 1,
@@ -192,4 +192,66 @@ function get_related_books(array $book, string $type = 'fiction'): array {
         }
     }
     return $related;
+}
+
+// ---------------------------------------------------------------------------
+//  Phase 5 -- Tag & Discovery Helpers
+// ---------------------------------------------------------------------------
+
+function get_all_books(): array {
+    $all = [];
+    foreach (get_fiction_books() as $b) {
+        $b['_type'] = 'fiction';
+        $all[] = $b;
+    }
+    foreach (get_nonfiction_books() as $b) {
+        $b['_type'] = 'non-fiction';
+        $all[] = $b;
+    }
+    return $all;
+}
+
+function get_all_tags(): array {
+    $tags = [];
+    foreach (get_all_books() as $book) {
+        foreach ($book['tags'] ?? [] as $tag) {
+            $key = strtolower($tag);
+            $tags[$key] = ($tags[$key] ?? 0) + 1;
+        }
+    }
+    arsort($tags);
+    return $tags;
+}
+
+function get_books_by_tag(string $tag): array {
+    $tag = strtolower($tag);
+    $matches = [];
+    foreach (get_all_books() as $book) {
+        $book_tags = array_map('strtolower', $book['tags'] ?? []);
+        if (in_array($tag, $book_tags, true)) {
+            $matches[] = $book;
+        }
+    }
+    return $matches;
+}
+
+function get_cross_category_suggestions(array $book, string $current_type = 'fiction'): array {
+    $book_tags = array_map('strtolower', $book['tags'] ?? []);
+    if (count($book_tags) === 0) {
+        return [];
+    }
+    $other_books = $current_type === 'fiction' ? get_nonfiction_books() : get_fiction_books();
+    $other_type  = $current_type === 'fiction' ? 'non-fiction' : 'fiction';
+    $suggestions = [];
+    foreach ($other_books as $other) {
+        $other_tags = array_map('strtolower', $other['tags'] ?? []);
+        $overlap = count(array_intersect($book_tags, $other_tags));
+        if ($overlap >= 1) {
+            $other['_type'] = $other_type;
+            $other['_overlap'] = $overlap;
+            $suggestions[] = $other;
+        }
+    }
+    usort($suggestions, fn($a, $b) => $b['_overlap'] <=> $a['_overlap']);
+    return array_slice($suggestions, 0, 4);
 }

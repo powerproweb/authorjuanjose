@@ -16,7 +16,9 @@ $main_navigation = [
     ['label' => 'Media', 'url' => '/media'],
     ['label' => 'Events', 'url' => '/events'],
     ['label' => 'Contact', 'url' => '/contact'],
+    ['label' => 'Library', 'url' => '/library'],
     ['label' => 'Gallery', 'url' => '/gallery'],
+    ['label' => 'Start Here', 'url' => '/start-here'],
     ['label' => 'ARC Reader Club', 'url' => '/arc-reader-club'],
 ];
 

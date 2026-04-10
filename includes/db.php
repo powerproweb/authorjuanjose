@@ -169,6 +169,20 @@ function init_schema(PDO $pdo): void
             approved_at    TEXT
         )
     ');
+
+    // Phase 5 tables
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS search_index (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            content_type TEXT NOT NULL CHECK(content_type IN ("fiction","non-fiction","journal","page")),
+            content_id   TEXT NOT NULL,
+            title        TEXT NOT NULL,
+            body_text    TEXT NOT NULL DEFAULT "",
+            url          TEXT NOT NULL,
+            indexed_at   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(content_type, content_id)
+        )
+    ');
 }
 
 // ---------------------------------------------------------------------------
