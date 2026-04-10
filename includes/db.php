@@ -170,6 +170,12 @@ function init_schema(PDO $pdo): void
         )
     ');
 
+    // Performance indexes
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_gallery_status ON gallery_uploads(status)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_notif_member_read ON notifications(member_id, read)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_search_type ON search_index(content_type)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_email_queue_status ON email_queue(status)');
+
     // Phase 5 tables
     $pdo->exec('
         CREATE TABLE IF NOT EXISTS search_index (

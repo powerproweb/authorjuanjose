@@ -53,6 +53,7 @@ $qs = static function (array $overrides) use ($filter_type, $filter_tag, $filter
 };
 
 $page_title = 'Library | AuthorJuanJose.io';
+$page_description = 'Browse all fiction and non-fiction titles by Author Juan Jose. Filter by type, tag, or status.';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 

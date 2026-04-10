@@ -36,6 +36,8 @@ if ($book === null) {
 }
 
 $page_title = htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8') . ' | AuthorJuanJose.io';
+$page_description = $book['hook'] ?? $book['title'];
+$page_og_image = $book['cover'] ?? '/assets/images/og-default.jpg';
 $series_name = get_book_series_name($book);
 
 require_once $project_root . '/includes/header.php';

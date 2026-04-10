@@ -23,6 +23,7 @@ $err = static function (string $key) use ($flashErrors): string {
 };
 
 $page_title = 'Contact | AuthorJuanJose.io';
+$page_description = 'Get in touch with Author Juan Jose. General inquiries, media requests, speaking engagements, and ARC Reader Club questions.';
 require_once __DIR__ . '/includes/header.php';
 ?>
 

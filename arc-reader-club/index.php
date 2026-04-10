@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $page_title = 'ARC Reader Club | AuthorJuanJose.io';
+$page_description = 'Join the ARC Reader Club for advance reader copies, insider updates, and recognition as part of the early reader community for Author Juan Jose.';
 $show_arc_sub_navigation = true;
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>

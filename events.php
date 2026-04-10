@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $page_title = 'Events | AuthorJuanJose.io';
+$page_description = 'Upcoming appearances, book launches, speaking engagements, podcast appearances, and event booking for Author Juan Jose.';
 require_once __DIR__ . '/includes/header.php';
 ?>
 

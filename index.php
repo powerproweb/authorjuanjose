@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $page_title = 'Author Juan Jose | Steampunk Science Fiction';
+$page_description = 'Official website of Author Juan Jose. Steampunk science fiction, non-fiction, the ARC Reader Club, and immersive worlds built on steam-powered possibility.';
 require_once __DIR__ . '/includes/header.php';
 ?>
 

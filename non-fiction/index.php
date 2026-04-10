@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/book-catalog.php';
 
 $page_title = 'Non-Fiction | AuthorJuanJose.io';
+$page_description = 'Non-fiction by Author Juan Jose. Real-world insight, practical wisdom, and the thinking behind the stories.';
 require_once dirname(__DIR__) . '/includes/header.php';
 
 $published   = get_nonfiction_books('published');

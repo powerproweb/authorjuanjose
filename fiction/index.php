@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/book-catalog.php';
 
 $page_title = 'Fiction | AuthorJuanJose.io';
+$page_description = 'Steampunk science fiction by Author Juan Jose. Immersive worlds, futuristic steam-driven technology, and stories that stay with you.';
 require_once dirname(__DIR__) . '/includes/header.php';
 
 $all_fiction = get_fiction_books();
