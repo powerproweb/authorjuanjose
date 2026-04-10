@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $page_title = 'About | AuthorJuanJose.io';
+$page_description = 'Juan Jose is a steampunk science fiction and historical fiction author and artist. Biography, mission, and the story behind the stories.';
 require_once __DIR__ . '/includes/header.php';
 ?>
 

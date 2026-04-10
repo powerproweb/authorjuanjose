@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $page_title = 'Journal | AuthorJuanJose.io';
+$page_description = 'Writing updates, behind-the-book notes, essays, and reflections from Author Juan Jose.';
 require_once __DIR__ . '/includes/header.php';
 
 /**

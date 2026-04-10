@@ -27,6 +27,7 @@ $stmt->execute([$per_page, $offset]);
 $images = $stmt->fetchAll();
 
 $page_title = 'Coloring Book Gallery | AuthorJuanJose.io';
+$page_description = 'Reader artwork gallery. Members upload photos of their completed coloring book pages from Author Juan Jose.';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 

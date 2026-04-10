@@ -1818,7 +1818,45 @@ a.tag:hover {
 }
 
 /* ---------------------------------------------------------------------------
-   44. UTILITY CLASSES
+   44. ACCESSIBILITY
+   --------------------------------------------------------------------------- */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--space-md);
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  z-index: 200;
+  transition: top .2s ease;
+}
+
+.skip-link:focus {
+  top: var(--space-sm);
+  text-decoration: none;
+  color: #fff;
+}
+
+/* Focus-visible for keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Remove default outline for mouse users */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+   45. UTILITY CLASSES
    --------------------------------------------------------------------------- */
 .text-center { text-align: center; }
 .text-accent { color: var(--accent); }

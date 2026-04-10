@@ -69,6 +69,7 @@ if ($step === 'results' && $interest !== '') {
 }
 
 $page_title = 'Start Here | AuthorJuanJose.io';
+$page_description = 'Not sure where to begin? Answer a few questions and get personalized book recommendations from Author Juan Jose.';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 

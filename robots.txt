@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://authorjuanjose.io/sitemap.xml
+
+# Protected areas
+Disallow: /admin/
+Disallow: /data/
+Disallow: /forms/
+Disallow: /cron/
+Disallow: /includes/

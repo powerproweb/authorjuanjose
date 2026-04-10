@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $page_title = 'Media | AuthorJuanJose.io';
+$page_description = 'Press resources, interview topics, and media contact for Author Juan Jose. Steampunk worldbuilding, indie publishing, and creative life.';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -65,17 +66,17 @@ require_once __DIR__ . '/includes/header.php';
       <div class="card">
         <h3>Author Photos</h3>
         <p>High-resolution author headshots and lifestyle images for editorial and promotional use.</p>
-        <p><em>Coming soon</em></p>
+        <p><a class="button button--outline" href="/assets/images/author/" target="_blank">View Author Photos</a></p>
       </div>
       <div class="card">
         <h3>Book One-Sheets</h3>
         <p>Single-page summaries for each title including cover, synopsis, specs, and buy links.</p>
-        <p><em>Coming soon</em></p>
+        <p><a class="button button--outline" href="/assets/downloads/" target="_blank">Download One-Sheets</a></p>
       </div>
       <div class="card">
-        <h3>Press Assets</h3>
-        <p>Logos, cover images, and brand assets for media use and event promotion.</p>
-        <p><em>Coming soon</em></p>
+        <h3>Press Kit</h3>
+        <p>Complete press kit with bio, book details, interview topics, and brand assets.</p>
+        <p><a class="button button--outline" href="/assets/downloads/" target="_blank">Download Press Kit</a></p>
       </div>
     </div>
   </section>
