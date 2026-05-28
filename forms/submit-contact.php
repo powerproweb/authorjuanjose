@@ -4,6 +4,8 @@ declare(strict_types=1);
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
+require_once dirname(__DIR__) . '/includes/contact-inbox-db.php';
+require_once dirname(__DIR__) . '/includes/rate-limit.php';
 
 $contactPath = '/contact';
 
@@ -54,6 +56,10 @@ $strLen = static function (string $v): int {
 if ($sessionToken === '' || $token === '' || !hash_equals($sessionToken, $token)) {
     $errors['form'] = 'Your session expired. Please refresh the page and try again.';
 }
+$contactRateLimit = ajj_rate_limit_check('contact_form', ajj_rate_limit_client_ip(), 6, 300);
+if (!$contactRateLimit['allowed']) {
+    $errors['form'] = 'Too many messages were sent from your network. Please wait a few minutes and try again.';
+}
 
 $validTypes = ['general', 'media', 'speaking', 'reader', 'arc'];
 if (!in_array($inquiry_type, $validTypes, true)) {
@@ -77,7 +83,53 @@ if ($errors !== []) {
     $_SESSION['contact_old']    = $oldInput;
     $redirect($contactPath);
 }
+// Store submission (DB first, file fallback)
+$ticketRef = ajj_contact_generate_ticket_ref();
+$submittedAt = gmdate('Y-m-d H:i:s');
+$normalizedEmail = strtolower($email);
+$ipAddress = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+$userAgent = (string)($_SERVER['HTTP_USER_AGENT'] ?? '');
+$savedToDb = false;
 
+try {
+    $pdo = get_contact_inbox_db();
+    $stmt = $pdo->prepare(
+        'INSERT INTO contact_submissions (
+            ticket_ref, inquiry_type, full_name, email, subject, message,
+            consent_contact, ip_address, user_agent, status, submitted_at, updated_at
+        ) VALUES (
+            :ticket_ref, :inquiry_type, :full_name, :email, :subject, :message,
+            :consent_contact, :ip_address, :user_agent, :status, :submitted_at, :updated_at
+        )'
+    );
+    $stmt->execute([
+        ':ticket_ref' => $ticketRef,
+        ':inquiry_type' => $inquiry_type,
+        ':full_name' => $name,
+        ':email' => $normalizedEmail,
+        ':subject' => $subject,
+        ':message' => $message,
+        ':consent_contact' => 1,
+        ':ip_address' => $ipAddress,
+        ':user_agent' => $userAgent,
+        ':status' => 'new',
+        ':submitted_at' => $submittedAt,
+        ':updated_at' => $submittedAt,
+    ]);
+
+    ajj_contact_log_event(
+        $pdo,
+        $ticketRef,
+        'system',
+        null,
+        'new',
+        'Submission received from public contact form.',
+        'public-contact-form'
+    );
+    $savedToDb = true;
+} catch (Throwable $e) {
+    error_log('Contact inbox DB write failed for ' . $normalizedEmail . ': ' . $e->getMessage());
+}
 // Log submission
 $storageDir = __DIR__ . '/storage';
 if (!is_dir($storageDir)) {
@@ -85,24 +137,32 @@ if (!is_dir($storageDir)) {
 }
 
 $submission = [
-    'submitted_at' => gmdate('Y-m-d H:i:s'),
+    'ticket_ref'   => $ticketRef,
+    'submitted_at' => $submittedAt,
     'inquiry_type' => $inquiry_type,
     'name'         => $name,
-    'email'        => strtolower($email),
+    'email'        => $normalizedEmail,
     'subject'      => $subject,
     'message'      => $message,
-    'ip'           => (string)($_SERVER['REMOTE_ADDR'] ?? ''),
-    'user_agent'   => (string)($_SERVER['HTTP_USER_AGENT'] ?? ''),
+    'ip'           => $ipAddress,
+    'user_agent'   => $userAgent,
+    'db_saved'     => $savedToDb,
 ];
 
 $line = json_encode($submission, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$savedToFile = false;
 if ($line !== false) {
-    file_put_contents($storageDir . '/contact-submissions.ndjson', $line . PHP_EOL, FILE_APPEND | LOCK_EX);
+    $savedToFile = file_put_contents($storageDir . '/contact-submissions.ndjson', $line . PHP_EOL, FILE_APPEND | LOCK_EX) !== false;
+}
+
+if (!$savedToDb && !$savedToFile) {
+    $_SESSION['contact_errors'] = ['form' => 'We could not save your message right now. Please try again in a moment.'];
+    $_SESSION['contact_old'] = $oldInput;
+    $redirect($contactPath);
 }
 
 // Reset token
 unset($_SESSION['contact_old'], $_SESSION['contact_errors']);
 $_SESSION['contact_token'] = bin2hex(random_bytes(32));
-
-$_SESSION['contact_success'] = 'Your message has been sent. Thank you for reaching out — we will get back to you as soon as possible.';
+$_SESSION['contact_success'] = 'Your message has been sent. Reference: ' . $ticketRef . '. We will get back to you as soon as possible.';
 $redirect($contactPath);

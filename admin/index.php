@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
-
+require_once dirname(__DIR__) . '/includes/admin-auth.php';
+ajj_require_admin_auth();
+if (!defined('SITE_AUTH_GATE_ENABLED')) {
+    define('SITE_AUTH_GATE_ENABLED', false);
+}
 require_once dirname(__DIR__) . '/includes/db.php';
 
 $pdo = get_db();
@@ -61,6 +65,10 @@ require_once dirname(__DIR__) . '/includes/header.php';
     <a class="card" href="/admin/reviews" style="text-decoration:none;color:var(--ink)">
       <h3>Review Moderation</h3>
       <p>View submitted reviews and verify them.</p>
+    </a>
+    <a class="card" href="/admin/form-submissions" style="text-decoration:none;color:var(--ink)">
+      <h3>Contact Inbox</h3>
+      <p>Review contact submissions, update statuses, add notes, archive, and restore.</p>
     </a>
   </div>
 
