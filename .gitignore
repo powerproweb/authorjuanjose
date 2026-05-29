@@ -46,3 +46,12 @@ desktop.ini
 # ============================================================
 *.log
 error_log
+
+# ============================================================
+# AUTH SOURCE FILES  -- never commit workspace auth artifacts
+# ============================================================
+auth_for_*_in_dev.md
+auth_for_z.warp.sovereign.projects.template.md
+auth_for_sites_in_dev.md*
+04_auth_for_sites_in_dev/
+**/04_auth_for_sites_in_dev/

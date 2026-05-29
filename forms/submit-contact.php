@@ -130,29 +130,33 @@ try {
 } catch (Throwable $e) {
     error_log('Contact inbox DB write failed for ' . $normalizedEmail . ': ' . $e->getMessage());
 }
-// Log submission
-$storageDir = __DIR__ . '/storage';
-if (!is_dir($storageDir)) {
-    mkdir($storageDir, 0755, true);
-}
-
-$submission = [
-    'ticket_ref'   => $ticketRef,
-    'submitted_at' => $submittedAt,
-    'inquiry_type' => $inquiry_type,
-    'name'         => $name,
-    'email'        => $normalizedEmail,
-    'subject'      => $subject,
-    'message'      => $message,
-    'ip'           => $ipAddress,
-    'user_agent'   => $userAgent,
-    'db_saved'     => $savedToDb,
-];
-
-$line = json_encode($submission, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 $savedToFile = false;
-if ($line !== false) {
-    $savedToFile = file_put_contents($storageDir . '/contact-submissions.ndjson', $line . PHP_EOL, FILE_APPEND | LOCK_EX) !== false;
+if (!$savedToDb) {
+    $storageDir = __DIR__ . '/storage';
+    if (!is_dir($storageDir)) {
+        mkdir($storageDir, 0755, true);
+    }
+
+    $submission = [
+        'ticket_ref'   => $ticketRef,
+        'submitted_at' => $submittedAt,
+        'inquiry_type' => $inquiry_type,
+        'name'         => $name,
+        'email'        => $normalizedEmail,
+        'subject'      => $subject,
+        'message'      => $message,
+        'ip'           => $ipAddress,
+        'user_agent'   => $userAgent,
+        'db_saved'     => false,
+    ];
+
+    $line = json_encode($submission, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($line !== false) {
+        $savedToFile = file_put_contents($storageDir . '/contact-submissions.ndjson', $line . PHP_EOL, FILE_APPEND | LOCK_EX) !== false;
+    }
+    if ($savedToFile) {
+        error_log('Contact inbox fallback file write used for ticket ' . $ticketRef . '.');
+    }
 }
 
 if (!$savedToDb && !$savedToFile) {
