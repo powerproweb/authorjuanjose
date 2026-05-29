@@ -77,7 +77,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
       <strong>Status:</strong>
       <a class="button <?php echo $filter_status === 'all' ? '' : 'button--outline'; ?>" href="/library<?php echo $qs(['status' => 'all']); ?>">All</a>
       <a class="button <?php echo $filter_status === 'published' ? '' : 'button--outline'; ?>" href="/library<?php echo $qs(['status' => 'published']); ?>">Published</a>
-      <a class="button <?php echo $filter_status === 'coming-soon' ? '' : 'button--outline'; ?>" href="/library<?php echo $qs(['status' => 'coming-soon']); ?>">Coming Soon</a>
+      <a class="button <?php echo $filter_status === 'coming-soon' ? '' : 'button--outline'; ?>" href="/library<?php echo $qs(['status' => 'coming-soon']); ?>">Upcoming</a>
     </div>
 
     <?php if (count($all_tags) > 0): ?>

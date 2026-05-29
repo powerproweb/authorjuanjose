@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * Site-wide auth gate.
  *
- * Include this at the top of header.php. While enabled, all visitors see a
- * styled "under construction" page with a login form. Authenticated admins
+ * Include this at the top of header.php. While enabled, all visitors see an
+ * access-controlled login page. Authenticated admins
  * browse the site normally.
  *
  * To DISABLE this gate when the site goes public, either:
@@ -61,7 +61,7 @@ http_response_code(200);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>AuthorJuanJose.io — Coming Soon</title>
+  <title>AuthorJuanJose.io | Authorized Access</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
@@ -219,9 +219,9 @@ http_response_code(200);
   <div class="gate">
     <div class="gate-brand">AuthorJuanJose.io</div>
     <div class="gate-gears">&#9881; &#9881; &#9881;</div>
-    <h1>Something Extraordinary Is Being Built</h1>
-    <p>The gears are turning and the steam is rising. AuthorJuanJose.io is currently under construction. A new world of steampunk science fiction, an exclusive ARC Reader Club, and much more is on its way.</p>
-    <p>Check back soon &mdash; or if you have access, sign in below.</p>
+    <h1>Authorized Access</h1>
+    <p>This site is currently access-controlled.</p>
+    <p>If you have credentials, sign in below to continue.</p>
 
     <div class="gate-panel">
       <h2>Authorized Access</h2>
@@ -238,7 +238,7 @@ http_response_code(200);
           <label for="site_pass">Password</label>
           <input id="site_pass" name="site_pass" type="password" required autocomplete="current-password">
         </div>
-        <button class="gate-btn" type="submit">Enter the Workshop</button>
+        <button class="gate-btn" type="submit">Sign In</button>
       </form>
     </div>
 

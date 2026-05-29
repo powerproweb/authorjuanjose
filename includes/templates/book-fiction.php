@@ -81,7 +81,7 @@ require_once $project_root . '/includes/header.php';
       <?php endif; ?>
 
       <?php if ($book['status'] === 'coming-soon'): ?>
-        <p class="book-badge book-badge--coming-soon">Coming Soon</p>
+        <p class="book-badge book-badge--coming-soon">Upcoming</p>
       <?php endif; ?>
 
       <?php

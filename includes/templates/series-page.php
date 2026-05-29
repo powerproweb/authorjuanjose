@@ -46,7 +46,7 @@ require_once $project_root . '/includes/header.php';
     <h1><?php echo htmlspecialchars($series['name'], ENT_QUOTES, 'UTF-8'); ?></h1>
     <p class="lead"><?php echo htmlspecialchars($series['description'], ENT_QUOTES, 'UTF-8'); ?></p>
     <?php if ($series['status'] === 'in-progress'): ?>
-      <p style="color:rgba(255,255,255,.7);font-style:italic">Series in progress &mdash; more titles coming soon.</p>
+      <p style="color:rgba(255,255,255,.7);font-style:italic">Series in progress, more titles are on the way.</p>
     <?php endif; ?>
   </div>
 </section>
@@ -73,7 +73,7 @@ require_once $project_root . '/includes/header.php';
               <h3><?php echo htmlspecialchars($book['short_title'] ?? $book['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
               <p><?php echo htmlspecialchars($book['hook'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
               <?php if ($book['status'] === 'coming-soon'): ?>
-                <span class="book-badge book-badge--coming-soon">Coming Soon</span>
+                <span class="book-badge book-badge--coming-soon">Upcoming</span>
               <?php endif; ?>
             </div>
           </a>

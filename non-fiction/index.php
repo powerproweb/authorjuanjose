@@ -48,12 +48,12 @@ $coming_soon = get_nonfiction_books('coming-soon');
     </section>
   <?php endif; ?>
 
-  <!-- Coming Soon -->
+  <!-- Upcoming -->
   <?php if (count($coming_soon) > 0): ?>
     <div class="divider-gear"></div>
     <section class="section">
       <p class="section-label">On the Horizon</p>
-      <h2>Coming Soon</h2>
+      <h2>Upcoming</h2>
       <div class="card-grid">
         <?php foreach ($coming_soon as $book): ?>
           <div class="book-card book-card--coming-soon">
@@ -67,7 +67,7 @@ $coming_soon = get_nonfiction_books('coming-soon');
             <div class="book-card__info">
               <h3><?php echo htmlspecialchars($book['short_title'] ?? $book['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
               <p><?php echo htmlspecialchars($book['hook'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
-              <span class="book-badge book-badge--coming-soon">Coming Soon</span>
+              <span class="book-badge book-badge--coming-soon">Upcoming</span>
             </div>
           </div>
         <?php endforeach; ?>
@@ -79,7 +79,7 @@ $coming_soon = get_nonfiction_books('coming-soon');
   <?php if (count($published) === 0 && count($coming_soon) === 0): ?>
     <section class="section">
       <p class="section-label">Non-Fiction</p>
-      <h2>Titles Coming Soon</h2>
+      <h2>Upcoming Titles</h2>
       <p>Non-fiction works are in development. Join the ARC Reader Club to be the first to know when new titles are announced.</p>
     </section>
   <?php endif; ?>

@@ -56,7 +56,7 @@ $categories = ['All', 'Fiction', 'Non-Fiction', 'Behind the Scenes'];
     </div>
   <?php else: ?>
     <div class="panel">
-      <p>Journal entries are coming soon. Check back for writing updates, essays, and behind-the-scenes content.</p>
+      <p>Journal entries are in development. Check back for writing updates, essays, and behind-the-scenes content.</p>
     </div>
   <?php endif; ?>
 
