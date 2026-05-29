@@ -4,6 +4,7 @@ declare(strict_types=1);
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
+require_once dirname(__DIR__) . '/includes/contact-inbox-db.php';
 
 $joinPath = '/arc-reader-club/join';
 $thankYouPath = '/arc-reader-club/thank-you';
@@ -251,6 +252,61 @@ $appendLogRecord([
 ]);
 
 // ---------------------------------------------------------------------------
+//  Mirror to contact inbox so admins can review ARC applications in one place
+// ---------------------------------------------------------------------------
+$arcInboxTicketRef = '';
+try {
+    $contactPdo = get_contact_inbox_db();
+    $arcInboxTicketRef = ajj_contact_generate_ticket_ref();
+    $arcSubmittedAt = $submission['submitted_at'];
+    $arcSubject = 'ARC Reader Club application: ' . $name;
+    $arcMessage = implode(PHP_EOL, [
+        'Name: ' . $name,
+        'Email: ' . strtolower($email),
+        'Preferred language: ' . $language,
+        'Country: ' . ($country !== '' ? $country : 'N/A'),
+        'Referral: ' . ($referral !== '' ? $referral : 'N/A'),
+        'Reading interests: ' . ($interests !== '' ? $interests : 'N/A'),
+        'Consent accepted: yes',
+    ]);
+
+    $contactPdo->prepare(
+        'INSERT INTO contact_submissions (
+            ticket_ref, inquiry_type, full_name, email, subject, message,
+            consent_contact, ip_address, user_agent, status, submitted_at, updated_at
+        ) VALUES (
+            :ticket_ref, :inquiry_type, :full_name, :email, :subject, :message,
+            :consent_contact, :ip_address, :user_agent, :status, :submitted_at, :updated_at
+        )'
+    )->execute([
+        ':ticket_ref' => $arcInboxTicketRef,
+        ':inquiry_type' => 'arc',
+        ':full_name' => $name,
+        ':email' => strtolower($email),
+        ':subject' => $arcSubject,
+        ':message' => $arcMessage,
+        ':consent_contact' => 1,
+        ':ip_address' => (string)($_SERVER['REMOTE_ADDR'] ?? ''),
+        ':user_agent' => (string)($_SERVER['HTTP_USER_AGENT'] ?? ''),
+        ':status' => 'new',
+        ':submitted_at' => $arcSubmittedAt,
+        ':updated_at' => $arcSubmittedAt,
+    ]);
+
+    ajj_contact_log_event(
+        $contactPdo,
+        $arcInboxTicketRef,
+        'system',
+        null,
+        'new',
+        'Submission received from ARC join form.',
+        'public-arc-form'
+    );
+} catch (\Throwable $contactError) {
+    error_log('ARC application contact inbox mirror failed for ' . $submission['email'] . ': ' . $contactError->getMessage());
+}
+
+// ---------------------------------------------------------------------------
 //  Insert into database (member starts as "pending")
 // ---------------------------------------------------------------------------
 try {
@@ -268,6 +324,14 @@ try {
             VALUES (?, ?, ?, ?, ?, ?, "pending")
         ');
         $insertStmt->execute([$name, strtolower($email), $language, $country, $referral, $interests]);
+    } else {
+        $existingId = (int)$existing['id'];
+        $updateStmt = $dbPdo->prepare('
+            UPDATE members
+            SET name = ?, language = ?, country = ?, referral = ?, interests = ?
+            WHERE id = ?
+        ');
+        $updateStmt->execute([$name, $language, $country, $referral, $interests, $existingId]);
     }
 } catch (\Throwable $dbError) {
     error_log('ARC application DB insert failed for ' . $email . ': ' . $dbError->getMessage());
@@ -288,10 +352,10 @@ unset($_SESSION['arc_form_old'], $_SESSION['arc_form_errors']);
 $_SESSION['arc_form_token'] = bin2hex(random_bytes(32));
 
 if ($mailerliteResult['ok']) {
-    $_SESSION['arc_form_success'] = 'Application received. Welcome to the ARC Reader Club journey.';
+    $_SESSION['arc_form_success'] = 'Application received. ' . ($arcInboxTicketRef !== '' ? ('Reference: ' . $arcInboxTicketRef . '. ') : '') . 'Welcome to the ARC Reader Club journey.';
     $redirect($thankYouPath);
 }
 
-$_SESSION['arc_form_notice'] = 'Application received. Our team will complete processing shortly.';
+$_SESSION['arc_form_notice'] = 'Application received. ' . ($arcInboxTicketRef !== '' ? ('Reference: ' . $arcInboxTicketRef . '. ') : '') . 'Our team will complete processing shortly.';
 error_log('ARC application MailerLite sync failed for ' . $submission['email'] . ' with status ' . (string)$mailerliteResult['status_code'] . '.');
 $redirect($thankYouPath . '?status=queued');

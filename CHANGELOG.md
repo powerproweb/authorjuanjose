@@ -46,5 +46,12 @@ All notable changes to AuthorJuanJose.io will be documented in this file.
 - CSS for dashboard tier display, progress bars, campaign cards, status badges, admin lists
 - `.gitignore` updated for `data/*.sqlite` and `forms/mailerlite-config.php`
 
+### Fixed
+- Admin authentication now supports a session login fallback when host environments do not forward `Authorization` headers, preventing false 401 failures in `/admin`.
+- Site gate and admin auth credentials were aligned to the same known credential pair so site access and admin access are consistent.
+- ARC join submissions now mirror into `contact_submissions` with inquiry type `arc`, so they appear in `/admin/form-submissions`.
+- Existing ARC member re-applications now refresh member profile fields without silently dropping the submission event from admin review visibility.
+- ARC submission success and queued notices now include the generated ticket reference when available.
+
 ### Removed
 - Root `fiction.php` and `non-fiction.php` (replaced by `fiction/index.php` and `non-fiction/index.php`)
