@@ -8,18 +8,32 @@ $site = [
 ];
 
 $main_navigation = [
-    ['label' => 'Home', 'url' => '/'],
-    ['label' => 'Fiction', 'url' => '/fiction'],
-    ['label' => 'Non-Fiction', 'url' => '/non-fiction'],
-    ['label' => 'About', 'url' => '/about'],
-    ['label' => 'Journal', 'url' => '/journal'],
-    ['label' => 'Media', 'url' => '/media'],
-    ['label' => 'Events', 'url' => '/events'],
-    ['label' => 'Contact', 'url' => '/contact'],
-    ['label' => 'Library', 'url' => '/library'],
-    ['label' => 'Gallery', 'url' => '/gallery'],
+    [
+        'label' => 'Books',
+        'children' => [
+            ['label' => 'Fiction', 'url' => '/fiction'],
+            ['label' => 'Non-Fiction', 'url' => '/non-fiction'],
+            ['label' => 'Library', 'url' => '/library'],
+        ],
+    ],
+    [
+        'label' => 'Updates',
+        'children' => [
+            ['label' => 'Journal', 'url' => '/journal'],
+            ['label' => 'Events', 'url' => '/events'],
+            ['label' => 'Media', 'url' => '/media'],
+        ],
+    ],
+    [
+        'label' => 'About',
+        'children' => [
+            ['label' => 'About', 'url' => '/about'],
+            ['label' => 'Gallery', 'url' => '/gallery'],
+            ['label' => 'Contact', 'url' => '/contact'],
+        ],
+    ],
     ['label' => 'Start Here', 'url' => '/start-here'],
-    ['label' => 'ARC Reader Club', 'url' => '/arc-reader-club'],
+    ['label' => 'ARC Reader Club', 'url' => '/arc-reader-club', 'is_cta' => true],
 ];
 
 $arc_navigation = [

@@ -27,6 +27,24 @@ $normalize_path = static function (string $path): string {
 $is_active = static function (string $target_path) use ($normalize_path, $current_path): bool {
     return $normalize_path($target_path) === $normalize_path($current_path);
 };
+
+$is_nav_item_active = static function (array $item) use (&$is_nav_item_active, $is_active): bool {
+    if (isset($item['url']) && is_string($item['url']) && $is_active($item['url'])) {
+        return true;
+    }
+
+    if (!isset($item['children']) || !is_array($item['children'])) {
+        return false;
+    }
+
+    foreach ($item['children'] as $child) {
+        if (is_array($child) && $is_nav_item_active($child)) {
+            return true;
+        }
+    }
+
+    return false;
+};
 ?>
 <!doctype html>
 <html lang="en">
@@ -77,17 +95,46 @@ $is_active = static function (string $target_path) use ($normalize_path, $curren
       <nav class="main-nav" aria-label="Main site navigation">
         <ul class="nav-list">
           <?php foreach ($main_navigation as $item): ?>
-            <li>
-              <a <?php echo $is_active($item['url']) ? 'class="is-active" aria-current="page"' : ''; ?> href="<?php echo htmlspecialchars($item['url'], ENT_QUOTES, 'UTF-8'); ?>">
-                <?php echo htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8'); ?>
-              </a>
+            <?php
+            $item_label = isset($item['label']) && is_string($item['label']) ? $item['label'] : '';
+            $has_children = isset($item['children']) && is_array($item['children']) && $item['children'] !== [];
+            $item_is_active = $is_nav_item_active($item);
+            $is_cta = isset($item['is_cta']) && $item['is_cta'] === true;
+            ?>
+            <li class="nav-item<?php echo $has_children ? ' nav-item--has-dropdown' : ''; ?>">
+              <?php if ($has_children): ?>
+                <button
+                  class="nav-dropdown-toggle<?php echo $item_is_active ? ' is-active' : ''; ?>"
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <?php echo htmlspecialchars($item_label, ENT_QUOTES, 'UTF-8'); ?>
+                </button>
+                <ul class="nav-dropdown" aria-label="<?php echo htmlspecialchars($item_label, ENT_QUOTES, 'UTF-8'); ?> submenu">
+                  <?php foreach ($item['children'] as $child): ?>
+                    <?php
+                    $child_url = isset($child['url']) && is_string($child['url']) ? $child['url'] : '/';
+                    $child_label = isset($child['label']) && is_string($child['label']) ? $child['label'] : '';
+                    ?>
+                    <li>
+                      <a <?php echo $is_active($child_url) ? 'class="is-active" aria-current="page"' : ''; ?> href="<?php echo htmlspecialchars($child_url, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo htmlspecialchars($child_label, ENT_QUOTES, 'UTF-8'); ?>
+                      </a>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+              <?php else: ?>
+                <?php
+                $item_url = isset($item['url']) && is_string($item['url']) ? $item['url'] : '/';
+                $link_classes = trim(($item_is_active ? 'is-active ' : '') . ($is_cta ? 'nav-link-cta' : ''));
+                ?>
+                <a <?php echo $link_classes !== '' ? 'class="' . htmlspecialchars($link_classes, ENT_QUOTES, 'UTF-8') . '"' : ''; ?> <?php echo $item_is_active ? 'aria-current="page"' : ''; ?> href="<?php echo htmlspecialchars($item_url, ENT_QUOTES, 'UTF-8'); ?>">
+                  <?php echo htmlspecialchars($item_label, ENT_QUOTES, 'UTF-8'); ?>
+                </a>
+              <?php endif; ?>
             </li>
           <?php endforeach; ?>
-          <?php if (isset($_SESSION['site_auth']) && $_SESSION['site_auth'] === true): ?>
-            <li>
-              <a href="/?site_logout=1">Site Logout</a>
-            </li>
-          <?php endif; ?>
         </ul>
       </nav>
     </div>

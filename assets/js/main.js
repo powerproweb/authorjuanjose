@@ -13,6 +13,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const dropdownItems = Array.from(document.querySelectorAll('.nav-item--has-dropdown'));
+
+  if (dropdownItems.length > 0) {
+    const closeDropdowns = () => {
+      dropdownItems.forEach(item => {
+        item.classList.remove('is-open');
+        const toggle = item.querySelector('.nav-dropdown-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    };
+
+    dropdownItems.forEach(item => {
+      const toggle = item.querySelector('.nav-dropdown-toggle');
+      if (!toggle) return;
+
+      toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        const shouldOpen = !item.classList.contains('is-open');
+        closeDropdowns();
+        if (shouldOpen) {
+          item.classList.add('is-open');
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest('.main-nav')) {
+        closeDropdowns();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeDropdowns();
+      }
+    });
+  }
+
   /* -----------------------------------------------------------------------
      Gallery lightbox
      ----------------------------------------------------------------------- */

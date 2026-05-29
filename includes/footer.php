@@ -17,6 +17,9 @@ require_once __DIR__ . '/site-config.php';
         <div class="footer-grid__copy">
           <p>&copy; <?php echo (int)$site['year']; ?> <?php echo htmlspecialchars($site['name'], ENT_QUOTES, 'UTF-8'); ?>. All rights reserved.</p>
           <p><a href="/privacy">Privacy Policy</a></p>
+          <?php if (isset($_SESSION['site_auth']) && $_SESSION['site_auth'] === true): ?>
+            <p class="footer-grid__utility-link"><a href="/?site_logout=1">Site Logout</a></p>
+          <?php endif; ?>
         </div>
       </div>
     </div>
