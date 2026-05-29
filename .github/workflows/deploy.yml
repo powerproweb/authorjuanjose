@@ -13,13 +13,13 @@ concurrency:
 
 jobs:
   deploy:
-    name: SFTP mirror to BlueHost
+    name: Mirror to BlueHost
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Resolve deployment settings and prepare SSH key
+      - name: Resolve deployment mode and settings
         id: deploy_vars
         env:
           BLUEHOST_HOST: ${{ secrets.BLUEHOST_HOST }}
@@ -30,69 +30,97 @@ jobs:
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_KEY: ${{ secrets.SFTP_KEY }}
           SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          FTP_REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
         run: |
           trim() {
             printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
           }
 
-          HOST="$(trim "${BLUEHOST_HOST:-$SFTP_HOST}")"
-          USER="$(trim "${BLUEHOST_USER:-$SFTP_USER}")"
-          KEY="${BLUEHOST_SSH_KEY:-$SFTP_KEY}"
-          REMOTE_DIR="$(trim "${BLUEHOST_REMOTE_DIR:-$SFTP_REMOTE_DIR}")"
+          MODE=""
+          HOST=""
+          USER=""
+          REMOTE_DIR=""
 
-          case "$REMOTE_DIR" in
-            /home/*/*)
-              DIR_USER="${REMOTE_DIR#/home/}"
-              DIR_USER="${DIR_USER%%/*}"
-              if [ -n "$DIR_USER" ] && { [ -z "$USER" ] || [ "$USER" != "$DIR_USER" ]; }; then
-                echo "::warning::Deployment user adjusted from BLUEHOST_REMOTE_DIR to avoid credential mismatch."
-                USER="$DIR_USER"
+          S_HOST="$(trim "${BLUEHOST_HOST:-$SFTP_HOST}")"
+          S_USER="$(trim "${BLUEHOST_USER:-$SFTP_USER}")"
+          S_KEY="${BLUEHOST_SSH_KEY:-$SFTP_KEY}"
+          S_REMOTE="$(trim "${BLUEHOST_REMOTE_DIR:-$SFTP_REMOTE_DIR}")"
+
+          if [ -n "$S_HOST" ] && [ -n "$S_USER" ] && [ -n "$S_KEY" ]; then
+            MODE="sftp"
+            HOST="$S_HOST"
+            USER="$S_USER"
+            REMOTE_DIR="$S_REMOTE"
+
+            case "$REMOTE_DIR" in
+              /home/*/*)
+                DIR_USER="${REMOTE_DIR#/home/}"
+                DIR_USER="${DIR_USER%%/*}"
+                if [ -n "$DIR_USER" ] && [ "$USER" != "$DIR_USER" ]; then
+                  echo "::warning::Deployment user adjusted from remote directory path."
+                  USER="$DIR_USER"
+                fi
+                ;;
+            esac
+
+            if [ -z "$REMOTE_DIR" ]; then
+              REMOTE_DIR="/home/${USER}/public_html/authorjuanjose.io"
+            fi
+
+            mkdir -p ~/.ssh
+            if printf '%s' "$S_KEY" | grep -q "BEGIN .*PRIVATE KEY"; then
+              printf '%s' "$S_KEY" > ~/.ssh/deploy_key
+            else
+              if ! printf '%s' "$S_KEY" | base64 -d > ~/.ssh/deploy_key; then
+                echo "::error::SFTP key secret is not valid key text or valid base64 data."
+                exit 1
               fi
-              ;;
-          esac
-
-          if [ -z "$REMOTE_DIR" ] && [ -n "$USER" ]; then
-            REMOTE_DIR="/home/${USER}/public_html/authorjuanjose.io"
+            fi
+            sed -i 's/\r$//' ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            if ! ssh-keygen -lf ~/.ssh/deploy_key >/dev/null 2>&1; then
+              echo "::error::SFTP key is invalid."
+              exit 1
+            fi
+            ssh-keyscan -p 22 "$HOST" >> ~/.ssh/known_hosts
           fi
 
-          missing=0
-          for name in HOST USER KEY REMOTE_DIR; do
-            value="$(eval "printf '%s' \"\$$name\"")"
-            if [ -z "$value" ]; then
-              echo "::error::Missing required deployment value: $name"
-              missing=1
+          if [ -z "$MODE" ]; then
+            F_HOST="$(trim "${FTP_HOST:-}")"
+            F_USER="$(trim "${FTP_USER:-}")"
+            F_PASS="$(trim "${FTP_PASS:-}")"
+            F_REMOTE="$(trim "${FTP_REMOTE_DIR:-}")"
+
+            if [ -n "$F_HOST" ] && [ -n "$F_USER" ] && [ -n "$F_PASS" ]; then
+              MODE="ftp"
+              HOST="$F_HOST"
+              USER="$F_USER"
+              if [ -n "$F_REMOTE" ]; then
+                REMOTE_DIR="$F_REMOTE"
+              else
+                REMOTE_DIR="/public_html/authorjuanjose.io"
+              fi
             fi
-          done
-          if [ "$missing" -ne 0 ]; then
-            echo "::error::Define BLUEHOST_* secrets (preferred) or SFTP_* secrets (legacy)."
+          fi
+
+          if [ -z "$MODE" ]; then
+            echo "::error::Missing deployment credentials. Configure SFTP secrets (BLUEHOST_* or SFTP_*) or FTP secrets (FTP_HOST, FTP_USER, FTP_PASS)."
             exit 1
           fi
 
+          printf 'mode=%s\n' "$MODE" >> "$GITHUB_OUTPUT"
           printf 'host=%s\n' "$HOST" >> "$GITHUB_OUTPUT"
           printf 'user=%s\n' "$USER" >> "$GITHUB_OUTPUT"
           printf 'remote_dir=%s\n' "$REMOTE_DIR" >> "$GITHUB_OUTPUT"
-
-          mkdir -p ~/.ssh
-          if printf '%s' "$KEY" | grep -q "BEGIN .*PRIVATE KEY"; then
-            printf '%s' "$KEY" > ~/.ssh/deploy_key
-          else
-            if ! printf '%s' "$KEY" | base64 -d > ~/.ssh/deploy_key; then
-              echo "::error::BLUEHOST_SSH_KEY/SFTP_KEY is not valid raw private key text or base64-encoded key data."
-              exit 1
-            fi
-          fi
-          sed -i 's/\r$//' ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          if ! ssh-keygen -lf ~/.ssh/deploy_key >/dev/null 2>&1; then
-            echo "::error::Deployment private key is invalid. Re-save BLUEHOST_SSH_KEY with a valid private key."
-            exit 1
-          fi
-          ssh-keyscan -p 22 "$HOST" >> ~/.ssh/known_hosts
 
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
       - name: Verify SFTP authentication
+        if: ${{ steps.deploy_vars.outputs.mode == 'sftp' }}
         env:
           DEPLOY_HOST: ${{ steps.deploy_vars.outputs.host }}
           DEPLOY_USER: ${{ steps.deploy_vars.outputs.user }}
@@ -107,11 +135,12 @@ jobs:
             bye
           EOF
           then
-            echo "::error::SFTP authentication failed. Verify BLUEHOST_HOST, BLUEHOST_USER, key import for this cPanel user, and that shell access is enabled."
+            echo "::error::SFTP authentication failed."
             exit 1
           fi
 
       - name: Deploy via lftp SFTP mirror
+        if: ${{ steps.deploy_vars.outputs.mode == 'sftp' }}
         env:
           DEPLOY_HOST: ${{ steps.deploy_vars.outputs.host }}
           DEPLOY_USER: ${{ steps.deploy_vars.outputs.user }}
@@ -123,6 +152,38 @@ jobs:
             set net:timeout 60
             set net:max-retries 3
             open -u \"${DEPLOY_USER},\" sftp://${DEPLOY_HOST}
+            mirror --reverse --verbose --only-newer \
+              --exclude-glob .git/ \
+              --exclude-glob .github/ \
+              --exclude-glob 01_md_plan_files/ \
+              --exclude-glob .gitignore \
+              --exclude-glob .gitattributes \
+              --exclude-glob AGENTS.md \
+              --exclude-glob README*.md \
+              --exclude-glob forms/storage/ \
+              --exclude-glob data/arc.sqlite \
+              --exclude-glob '*.log' \
+              ./ ${DEPLOY_REMOTE_DIR}/
+            bye
+          "
+
+      - name: Deploy via lftp FTP mirror
+        if: ${{ steps.deploy_vars.outputs.mode == 'ftp' }}
+        env:
+          DEPLOY_HOST: ${{ steps.deploy_vars.outputs.host }}
+          DEPLOY_USER: ${{ steps.deploy_vars.outputs.user }}
+          DEPLOY_REMOTE_DIR: ${{ steps.deploy_vars.outputs.remote_dir }}
+          DEPLOY_FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          lftp -c "
+            set net:timeout 60
+            set net:max-retries 3
+            set ftp:passive-mode true
+            set ftp:ssl-allow true
+            set ftp:ssl-force true
+            set ftp:ssl-protect-data true
+            set ssl:verify-certificate no
+            open -u \"${DEPLOY_USER},${DEPLOY_FTP_PASS}\" ftp://${DEPLOY_HOST}
             mirror --reverse --verbose --only-newer \
               --exclude-glob .git/ \
               --exclude-glob .github/ \
