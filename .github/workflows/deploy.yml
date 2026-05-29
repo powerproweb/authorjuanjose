@@ -1,0 +1,148 @@
+name: Deploy to BlueHost
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: bluehost-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: SFTP mirror to BlueHost
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Resolve deployment settings and prepare SSH key
+        id: deploy_vars
+        env:
+          BLUEHOST_HOST: ${{ secrets.BLUEHOST_HOST }}
+          BLUEHOST_USER: ${{ secrets.BLUEHOST_USER }}
+          BLUEHOST_SSH_KEY: ${{ secrets.BLUEHOST_SSH_KEY }}
+          BLUEHOST_REMOTE_DIR: ${{ secrets.BLUEHOST_REMOTE_DIR }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_KEY: ${{ secrets.SFTP_KEY }}
+          SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
+        run: |
+          trim() {
+            printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+          }
+
+          HOST="$(trim "${BLUEHOST_HOST:-$SFTP_HOST}")"
+          USER="$(trim "${BLUEHOST_USER:-$SFTP_USER}")"
+          KEY="${BLUEHOST_SSH_KEY:-$SFTP_KEY}"
+          REMOTE_DIR="$(trim "${BLUEHOST_REMOTE_DIR:-$SFTP_REMOTE_DIR}")"
+
+          case "$REMOTE_DIR" in
+            /home/*/*)
+              DIR_USER="${REMOTE_DIR#/home/}"
+              DIR_USER="${DIR_USER%%/*}"
+              if [ -n "$DIR_USER" ] && { [ -z "$USER" ] || [ "$USER" != "$DIR_USER" ]; }; then
+                echo "::warning::Deployment user adjusted from BLUEHOST_REMOTE_DIR to avoid credential mismatch."
+                USER="$DIR_USER"
+              fi
+              ;;
+          esac
+
+          if [ -z "$REMOTE_DIR" ] && [ -n "$USER" ]; then
+            REMOTE_DIR="/home/${USER}/public_html/authorjuanjose.io"
+          fi
+
+          missing=0
+          for name in HOST USER KEY REMOTE_DIR; do
+            value="$(eval "printf '%s' \"\$$name\"")"
+            if [ -z "$value" ]; then
+              echo "::error::Missing required deployment value: $name"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Define BLUEHOST_* secrets (preferred) or SFTP_* secrets (legacy)."
+            exit 1
+          fi
+
+          printf 'host=%s\n' "$HOST" >> "$GITHUB_OUTPUT"
+          printf 'user=%s\n' "$USER" >> "$GITHUB_OUTPUT"
+          printf 'remote_dir=%s\n' "$REMOTE_DIR" >> "$GITHUB_OUTPUT"
+
+          mkdir -p ~/.ssh
+          if printf '%s' "$KEY" | grep -q "BEGIN .*PRIVATE KEY"; then
+            printf '%s' "$KEY" > ~/.ssh/deploy_key
+          else
+            if ! printf '%s' "$KEY" | base64 -d > ~/.ssh/deploy_key; then
+              echo "::error::BLUEHOST_SSH_KEY/SFTP_KEY is not valid raw private key text or base64-encoded key data."
+              exit 1
+            fi
+          fi
+          sed -i 's/\r$//' ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          if ! ssh-keygen -lf ~/.ssh/deploy_key >/dev/null 2>&1; then
+            echo "::error::Deployment private key is invalid. Re-save BLUEHOST_SSH_KEY with a valid private key."
+            exit 1
+          fi
+          ssh-keyscan -p 22 "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Verify SFTP authentication
+        env:
+          DEPLOY_HOST: ${{ steps.deploy_vars.outputs.host }}
+          DEPLOY_USER: ${{ steps.deploy_vars.outputs.user }}
+        run: |
+          if ! timeout 30s sftp \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile=~/.ssh/known_hosts \
+            -P 22 \
+            -i ~/.ssh/deploy_key \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" <<'EOF'
+            bye
+          EOF
+          then
+            echo "::error::SFTP authentication failed. Verify BLUEHOST_HOST, BLUEHOST_USER, key import for this cPanel user, and that shell access is enabled."
+            exit 1
+          fi
+
+      - name: Deploy via lftp SFTP mirror
+        env:
+          DEPLOY_HOST: ${{ steps.deploy_vars.outputs.host }}
+          DEPLOY_USER: ${{ steps.deploy_vars.outputs.user }}
+          DEPLOY_REMOTE_DIR: ${{ steps.deploy_vars.outputs.remote_dir }}
+        run: |
+          lftp -c "
+            set sftp:auto-confirm yes
+            set sftp:connect-program 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts -p 22 -q'
+            set net:timeout 60
+            set net:max-retries 3
+            open -u \"${DEPLOY_USER},\" sftp://${DEPLOY_HOST}
+            mirror --reverse --verbose --only-newer \
+              --exclude-glob .git/ \
+              --exclude-glob .github/ \
+              --exclude-glob 01_md_plan_files/ \
+              --exclude-glob .gitignore \
+              --exclude-glob .gitattributes \
+              --exclude-glob AGENTS.md \
+              --exclude-glob README*.md \
+              --exclude-glob forms/storage/ \
+              --exclude-glob data/arc.sqlite \
+              --exclude-glob '*.log' \
+              ./ ${DEPLOY_REMOTE_DIR}/
+            bye
+          "
+
+      - name: Verify live site responds
+        run: |
+          status="$(curl -sS -o /dev/null -w "%{http_code}" --location "https://authorjuanjose.io/" || true)"
+          if [ "$status" != "200" ]; then
+            echo "::error::Live site check failed, expected HTTP 200 and got ${status:-unknown}."
+            exit 1
+          fi
+          echo "Live site responded with HTTP 200."
