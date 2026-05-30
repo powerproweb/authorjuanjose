@@ -281,7 +281,7 @@ a:focus-visible {
   padding: 0.4rem;
   position: absolute;
   left: 0;
-  top: calc(100% + 0.35rem);
+  top: 100%;
   min-width: 13rem;
   background: #fff;
   border: 1px solid var(--border);

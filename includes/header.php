@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+if (!defined('SITE_AUTH_GATE_ENABLED')) {
+    define('SITE_AUTH_GATE_ENABLED', false);
+}
 
 require_once __DIR__ . '/auth-gate.php';
 require_once __DIR__ . '/site-config.php';
@@ -17,7 +20,7 @@ $current_path = is_string($current_path) && $current_path !== '' ? $current_path
 
 $_site_base = 'https://authorjuanjose.io';
 $_canonical = $page_canonical !== '' ? $page_canonical : $_site_base . $current_path;
-$_asset_v = '?v=6';
+$_asset_v = '?v=7';
 
 $normalize_path = static function (string $path): string {
     $trimmed = rtrim($path, '/');

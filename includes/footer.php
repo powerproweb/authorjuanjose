@@ -24,6 +24,6 @@ require_once __DIR__ . '/site-config.php';
       </div>
     </div>
   </footer>
-  <script src="/assets/js/main.js?v=6" defer></script>
+  <script src="/assets/js/main.js?v=7" defer></script>
 </body>
 </html>
