@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 $page_title = 'Fiction | AuthorJuanJose.io';
 $page_description = 'Steampunk science fiction by Author Juan Jose. Immersive worlds, futuristic steam-driven technology, and stories that stay with you.';
+$body_class = 'cards-4up';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 

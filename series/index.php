@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/book-catalog.php';
 
 $page_title = 'Book Series | AuthorJuanJose.io';
+$body_class = 'cards-drjessie';
 require_once dirname(__DIR__) . '/includes/header.php';
 
 global $series_catalog;

@@ -11,6 +11,7 @@ $page_title = $page_title ?? $site['name'];
 $page_description = $page_description ?? 'Official website of Author Juan Jose — steampunk science fiction, non-fiction, and the ARC Reader Club.';
 $page_og_image = $page_og_image ?? '/assets/images/og-default.jpg';
 $page_canonical = $page_canonical ?? '';
+$body_class = trim((string)($body_class ?? ''));
 $show_arc_sub_navigation = $show_arc_sub_navigation ?? false;
 $show_member_navigation = $show_member_navigation ?? false;
 
@@ -20,7 +21,7 @@ $current_path = is_string($current_path) && $current_path !== '' ? $current_path
 
 $_site_base = 'https://authorjuanjose.io';
 $_canonical = $page_canonical !== '' ? $page_canonical : $_site_base . $current_path;
-$_asset_v = '?v=7';
+$_asset_v = '?v=11';
 
 $normalize_path = static function (string $path): string {
     $trimmed = rtrim($path, '/');
@@ -89,7 +90,7 @@ $is_nav_item_active = static function (array $item) use (&$is_nav_item_active, $
 
   <link rel="stylesheet" href="/assets/css/styles.css<?php echo $_asset_v; ?>">
 </head>
-<body>
+<body<?php echo $body_class !== '' ? ' class="' . htmlspecialchars($body_class, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
   <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="site-header">
     <div class="container">

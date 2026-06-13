@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 $page_title = 'Non-Fiction | AuthorJuanJose.io';
 $page_description = 'Non-fiction by Author Juan Jose. Real-world insight, practical wisdom, and the thinking behind the stories.';
+$body_class = 'cards-4up';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 

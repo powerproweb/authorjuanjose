@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 $page_title = 'Library | AuthorJuanJose.io';
 $page_description = 'Browse all fiction and non-fiction catalog placeholders by Author Juan Jose.';
+$body_class = 'cards-4up';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 <section class="hero">
