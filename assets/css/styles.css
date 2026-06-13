@@ -2250,6 +2250,18 @@ a.book-card:hover {
   margin-bottom: var(--space-xs);
 }
 
+.footer-grid__policy-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.footer-grid__policy-links span {
+  color: var(--border-dark);
+}
+
 .footer-grid__utility-link {
   margin-top: var(--space-sm);
   padding-top: var(--space-sm);
@@ -2263,6 +2275,9 @@ a.book-card:hover {
   }
   .footer-grid__copy {
     text-align: left;
+  }
+  .footer-grid__policy-links {
+    justify-content: flex-start;
   }
   .newsletter-form--inline {
     flex-direction: column;
