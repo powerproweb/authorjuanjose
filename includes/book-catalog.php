@@ -14,6 +14,7 @@ declare(strict_types=1);
  *   2. Create a page file in series/ that sets $series_slug
  *      and includes the series template.
  */
+const DEFAULT_COMING_SOON_COVER = '/assets/images/book_covers/01_atticus_cvrs_6x9_800x1184_coming_soon.jpg';
 
 // ---------------------------------------------------------------------------
 //  Fiction Books
@@ -24,7 +25,7 @@ $fiction_books = [
         'title'          => "Jules Verne's Michael Strogoff, or The Courier of the Czar",
         'short_title'    => 'Michael Strogoff',
         'slug'           => 'michael-strogoff',
-        'cover'          => '/assets/images/books/michael-strogoff.jpg',
+        'cover'          => '/assets/images/book_covers/michael_strogoff_boxset_single_cvr.jpg',
         'hook'           => 'A gripping two-book adventure novel set in 19th-century Russia during a Tartar rebellion against the Czar.',
         'synopsis'       => "The story follows Michael Strogoff, a brave and resourceful courier entrusted with a vital mission: to deliver an urgent message to the governor of Irkutsk and warn him of a treacherous plot led by the cunning traitor Ivan Ogareff. Traveling over 5,000 miles through the harsh Siberian landscape, Michael faces relentless dangers, including enemy spies, brutal Tartar warriors, and the ever-present threat of exposure. Combining elements of historical fiction, adventure, and espionage, Verne's novel is a testament to courage, duty, and resilience.",
         'excerpt'        => '', // Add an excerpt passage when ready
@@ -56,7 +57,7 @@ $nonfiction_books = [
         'title'          => 'Sample Non-Fiction Title',
         'short_title'    => 'Sample Non-Fiction',
         'slug'           => 'sample-nonfiction',
-        'cover'          => '/assets/images/books/sample-nonfiction.jpg',
+        'cover'          => DEFAULT_COMING_SOON_COVER,
         'hook'           => 'A compelling exploration of real-world ideas.',
         'premise'        => 'This book examines the intersection of technology, creativity, and human potential through a practical and accessible lens.',
         'what_readers_learn' => [
@@ -91,7 +92,7 @@ $series_catalog = [
     'steampunk-chronicles' => [
         'name'        => 'The Steampunk Chronicles',
         'slug'        => 'steampunk-chronicles',
-        'cover'       => '/assets/images/series/steampunk-chronicles.jpg',
+        'cover'       => '/assets/images/book_covers/michael_strogoff_boxset_single_cvr.jpg',
         'description' => 'An epic eight-part steampunk science fiction novella series tracing the evolution of steampunk technology — from the age of steam, coal, and wood to futuristic advancements in space travel.',
         'books'       => ['michael-strogoff'], // fiction slugs in reading order
         'status'      => 'in-progress', // complete | in-progress
@@ -103,13 +104,29 @@ $series_catalog = [
 // ---------------------------------------------------------------------------
 //  Catalog Helper Functions
 // ---------------------------------------------------------------------------
+function get_default_coming_soon_cover(): string {
+    return DEFAULT_COMING_SOON_COVER;
+}
+
+function normalize_book_cover(array $book): array {
+    $cover = trim((string)($book['cover'] ?? ''));
+    $book['cover'] = $cover !== '' ? $cover : get_default_coming_soon_cover();
+    return $book;
+}
+
+function normalize_series_cover(array $series): array {
+    $cover = trim((string)($series['cover'] ?? ''));
+    $series['cover'] = $cover !== '' ? $cover : get_default_coming_soon_cover();
+    return $series;
+}
 
 /**
  * Get a fiction book by slug, or null if not found.
  */
 function get_fiction_book(string $slug): ?array {
     global $fiction_books;
-    return $fiction_books[$slug] ?? null;
+    $book = $fiction_books[$slug] ?? null;
+    return $book === null ? null : normalize_book_cover($book);
 }
 
 /**
@@ -117,7 +134,8 @@ function get_fiction_book(string $slug): ?array {
  */
 function get_nonfiction_book(string $slug): ?array {
     global $nonfiction_books;
-    return $nonfiction_books[$slug] ?? null;
+    $book = $nonfiction_books[$slug] ?? null;
+    return $book === null ? null : normalize_book_cover($book);
 }
 
 /**
@@ -125,7 +143,8 @@ function get_nonfiction_book(string $slug): ?array {
  */
 function get_series(string $slug): ?array {
     global $series_catalog;
-    return $series_catalog[$slug] ?? null;
+    $series = $series_catalog[$slug] ?? null;
+    return $series === null ? null : normalize_series_cover($series);
 }
 
 /**
@@ -144,10 +163,14 @@ function get_book_series_name(array $book): string {
  */
 function get_fiction_books(?string $status = null): array {
     global $fiction_books;
-    if ($status === null) {
-        return $fiction_books;
+    $books = $status === null
+        ? $fiction_books
+        : array_filter($fiction_books, fn(array $b) => $b['status'] === $status);
+
+    foreach ($books as $slug => $book) {
+        $books[$slug] = normalize_book_cover($book);
     }
-    return array_filter($fiction_books, fn(array $b) => $b['status'] === $status);
+    return $books;
 }
 
 /**
@@ -155,10 +178,14 @@ function get_fiction_books(?string $status = null): array {
  */
 function get_nonfiction_books(?string $status = null): array {
     global $nonfiction_books;
-    if ($status === null) {
-        return $nonfiction_books;
+    $books = $status === null
+        ? $nonfiction_books
+        : array_filter($nonfiction_books, fn(array $b) => $b['status'] === $status);
+
+    foreach ($books as $slug => $book) {
+        $books[$slug] = normalize_book_cover($book);
     }
-    return array_filter($nonfiction_books, fn(array $b) => $b['status'] === $status);
+    return $books;
 }
 
 /**
