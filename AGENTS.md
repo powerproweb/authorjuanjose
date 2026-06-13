@@ -1,6 +1,8 @@
 # AGENTS.md
 
 This file provides guidance to WARP (warp.dev) when working with code in this repository.
+## Session Startup Requirement
+- At the start of every new work session on this project, read `01_md_build_files/HANDOFF_2026-05-30_public_hold_mode.md` together with the other existing planning and build notes in `01_md_build_files/`.
 
 ## Project Overview
 

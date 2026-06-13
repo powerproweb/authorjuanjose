@@ -34,6 +34,7 @@ if ($series === null) {
 }
 
 $page_title = htmlspecialchars($series['name'], ENT_QUOTES, 'UTF-8') . ' | AuthorJuanJose.io';
+$body_class = 'cards-drjessie';
 $books = get_series_books($series_slug);
 
 require_once $project_root . '/includes/header.php';

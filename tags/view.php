@@ -13,6 +13,7 @@ if ($tag === '') {
 $books = get_books_by_tag($tag);
 
 $page_title = ucfirst($tag) . ' Books | AuthorJuanJose.io';
+$body_class = 'cards-drjessie';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
