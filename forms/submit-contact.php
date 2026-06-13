@@ -38,6 +38,12 @@ $name         = trim((string)($_POST['name'] ?? ''));
 $email        = trim((string)($_POST['email'] ?? ''));
 $subject      = trim((string)($_POST['subject'] ?? ''));
 $message      = trim((string)($_POST['message'] ?? ''));
+$humanSliderValue = (int)($_POST['human_slider_value'] ?? 0);
+$postedHumanTargetValue = (int)($_POST['human_target_value'] ?? 0);
+$postedHumanElapsedMs = (int)($_POST['human_elapsed_ms'] ?? 0);
+$humanTargetValue = (int)($_SESSION['contact_human_target'] ?? 0);
+$formStartedAt = (float)($_SESSION['contact_form_started_at'] ?? 0);
+$humanElapsedMs = $formStartedAt > 0 ? (int)round((microtime(true) - $formStartedAt) * 1000) : 0;
 
 $oldInput = [
     'inquiry_type' => $inquiry_type,
@@ -45,6 +51,9 @@ $oldInput = [
     'email'        => $email,
     'subject'      => $subject,
     'message'      => $message,
+    'human_slider_value' => (string)$humanSliderValue,
+    'human_target_value' => (string)$postedHumanTargetValue,
+    'human_elapsed_ms' => (string)$postedHumanElapsedMs,
 ];
 
 $errors = [];
@@ -76,6 +85,24 @@ if ($subject === '' || $strLen($subject) > 200) {
 }
 if ($message === '' || $strLen($message) > 5000) {
     $errors['message'] = 'Please enter your message (up to 5000 characters).';
+}
+if (
+    $humanTargetValue < 60
+    || $humanTargetValue > 92
+    || $postedHumanTargetValue < 60
+    || $postedHumanTargetValue > 92
+    || $postedHumanTargetValue !== $humanTargetValue
+) {
+    $errors['form'] = 'Security check expired. Please refresh the page and try again.';
+}
+if ($humanSliderValue < $postedHumanTargetValue) {
+    $errors['human_slider'] = 'Slide to 100% before submitting. The anti-bot bouncer is strict.';
+}
+if ($humanElapsedMs < 1200) {
+    $errors['human_slider'] = 'Please wait one second and submit again. We do not accept speedrun bots.';
+}
+if ($postedHumanElapsedMs > 0 && $postedHumanElapsedMs < 1200) {
+    $errors['human_slider'] = 'Please wait one second and submit again. We do not accept speedrun bots.';
 }
 
 if ($errors !== []) {
@@ -167,6 +194,7 @@ if (!$savedToDb && !$savedToFile) {
 
 // Reset token
 unset($_SESSION['contact_old'], $_SESSION['contact_errors']);
+unset($_SESSION['contact_human_target'], $_SESSION['contact_form_started_at']);
 $_SESSION['contact_token'] = bin2hex(random_bytes(32));
 $_SESSION['contact_success'] = 'Your message has been sent. Reference: ' . $ticketRef . '. We will get back to you as soon as possible.';
 $redirect($contactPath);

@@ -14,6 +14,9 @@ if (!isset($_SESSION['contact_token']) || !is_string($_SESSION['contact_token'])
     $_SESSION['contact_token'] = bin2hex(random_bytes(32));
 }
 $formToken = (string)$_SESSION['contact_token'];
+$humanTarget = random_int(60, 92);
+$_SESSION['contact_human_target'] = $humanTarget;
+$_SESSION['contact_form_started_at'] = microtime(true);
 
 $old = static function (string $key) use ($flashOld): string {
     return htmlspecialchars((string)($flashOld[$key] ?? ''), ENT_QUOTES, 'UTF-8');
@@ -85,6 +88,32 @@ require_once __DIR__ . '/includes/header.php';
         <label for="message">Message <span class="text-accent">*</span></label>
         <textarea id="message" name="message" required placeholder="Your message"><?php echo $old('message'); ?></textarea>
         <?php if ($err('message') !== ''): ?><p class="form-error"><?php echo htmlspecialchars($err('message'), ENT_QUOTES, 'UTF-8'); ?></p><?php endif; ?>
+      </div>
+
+      <div class="form-group form-group--human-check">
+        <label for="human_slider_value">Human check, slide to 100% to prove you are not a very ambitious toaster <span class="text-accent">*</span></label>
+        <input
+          id="human_slider_value"
+          name="human_slider_value"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="0"
+          data-target="<?php echo (int)$humanTarget; ?>"
+          required
+        >
+        <div class="human-check-row">
+          <strong id="human_slider_percent">0%</strong>
+          <span>Take it to 100% to arm the send logic.</span>
+        </div>
+        <input type="hidden" id="human_target_value" name="human_target_value" value="<?php echo (int)$humanTarget; ?>">
+        <input type="hidden" id="human_elapsed_ms" name="human_elapsed_ms" value="0">
+        <?php if ($err('human_slider') !== ''): ?>
+          <p class="form-error" id="human-slider-error"><?php echo htmlspecialchars($err('human_slider'), ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php else: ?>
+          <p class="form-error" id="human-slider-error" hidden></p>
+        <?php endif; ?>
       </div>
 
       <p class="mt-lg">
