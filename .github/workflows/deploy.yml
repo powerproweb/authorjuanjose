@@ -43,6 +43,7 @@ jobs:
           HOST=""
           USER=""
           REMOTE_DIR=""
+          SECONDARY_REMOTE_DIR=""
 
           S_HOST="$(trim "${BLUEHOST_HOST:-$SFTP_HOST}")"
           S_USER="$(trim "${BLUEHOST_USER:-$SFTP_USER}")"
@@ -106,6 +107,20 @@ jobs:
             fi
           fi
 
+          case "$REMOTE_DIR" in
+            /public_html/authorjuanjose.io|/public_html/authorjuanjose.io/)
+              SECONDARY_REMOTE_DIR="/public_html"
+              ;;
+            /home/*/public_html/authorjuanjose.io|/home/*/public_html/authorjuanjose.io/)
+              SECONDARY_REMOTE_DIR="${REMOTE_DIR%/authorjuanjose.io}"
+              SECONDARY_REMOTE_DIR="${SECONDARY_REMOTE_DIR%/}"
+              ;;
+          esac
+
+          if [ "$SECONDARY_REMOTE_DIR" = "$REMOTE_DIR" ]; then
+            SECONDARY_REMOTE_DIR=""
+          fi
+
           if [ -z "$MODE" ]; then
             echo "::error::Missing deployment credentials. Configure SFTP secrets (BLUEHOST_* or SFTP_*) or FTP secrets (FTP_HOST, FTP_USER, FTP_PASS)."
             exit 1
@@ -115,6 +130,7 @@ jobs:
           printf 'host=%s\n' "$HOST" >> "$GITHUB_OUTPUT"
           printf 'user=%s\n' "$USER" >> "$GITHUB_OUTPUT"
           printf 'remote_dir=%s\n' "$REMOTE_DIR" >> "$GITHUB_OUTPUT"
+          printf 'secondary_remote_dir=%s\n' "$SECONDARY_REMOTE_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
@@ -145,6 +161,7 @@ jobs:
           DEPLOY_HOST: ${{ steps.deploy_vars.outputs.host }}
           DEPLOY_USER: ${{ steps.deploy_vars.outputs.user }}
           DEPLOY_REMOTE_DIR: ${{ steps.deploy_vars.outputs.remote_dir }}
+          DEPLOY_SECONDARY_REMOTE_DIR: ${{ steps.deploy_vars.outputs.secondary_remote_dir }}
         run: |
           lftp -c "
             set sftp:auto-confirm yes
@@ -167,12 +184,36 @@ jobs:
             bye
           "
 
+          if [ -n "${DEPLOY_SECONDARY_REMOTE_DIR}" ] && [ "${DEPLOY_SECONDARY_REMOTE_DIR}" != "${DEPLOY_REMOTE_DIR}" ]; then
+            lftp -c "
+              set sftp:auto-confirm yes
+              set sftp:connect-program 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts -p 22 -q'
+              set net:timeout 60
+              set net:max-retries 3
+              open -u \"${DEPLOY_USER},\" sftp://${DEPLOY_HOST}
+              mirror --reverse --verbose --only-newer \
+                --exclude-glob .git/ \
+                --exclude-glob .github/ \
+                --exclude-glob 01_md_plan_files/ \
+                --exclude-glob .gitignore \
+                --exclude-glob .gitattributes \
+                --exclude-glob AGENTS.md \
+                --exclude-glob README*.md \
+                --exclude-glob forms/storage/ \
+                --exclude-glob data/arc.sqlite \
+                --exclude-glob '*.log' \
+                ./ ${DEPLOY_SECONDARY_REMOTE_DIR}/
+              bye
+            "
+          fi
+
       - name: Deploy via lftp FTP mirror
         if: ${{ steps.deploy_vars.outputs.mode == 'ftp' }}
         env:
           DEPLOY_HOST: ${{ steps.deploy_vars.outputs.host }}
           DEPLOY_USER: ${{ steps.deploy_vars.outputs.user }}
           DEPLOY_REMOTE_DIR: ${{ steps.deploy_vars.outputs.remote_dir }}
+          DEPLOY_SECONDARY_REMOTE_DIR: ${{ steps.deploy_vars.outputs.secondary_remote_dir }}
           DEPLOY_FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           lftp -c "
@@ -198,6 +239,32 @@ jobs:
               ./ ${DEPLOY_REMOTE_DIR}/
             bye
           "
+
+          if [ -n "${DEPLOY_SECONDARY_REMOTE_DIR}" ] && [ "${DEPLOY_SECONDARY_REMOTE_DIR}" != "${DEPLOY_REMOTE_DIR}" ]; then
+            lftp -c "
+              set net:timeout 60
+              set net:max-retries 3
+              set ftp:passive-mode true
+              set ftp:ssl-allow true
+              set ftp:ssl-force true
+              set ftp:ssl-protect-data true
+              set ssl:verify-certificate no
+              open -u \"${DEPLOY_USER},${DEPLOY_FTP_PASS}\" ftp://${DEPLOY_HOST}
+              mirror --reverse --verbose --only-newer \
+                --exclude-glob .git/ \
+                --exclude-glob .github/ \
+                --exclude-glob 01_md_plan_files/ \
+                --exclude-glob .gitignore \
+                --exclude-glob .gitattributes \
+                --exclude-glob AGENTS.md \
+                --exclude-glob README*.md \
+                --exclude-glob forms/storage/ \
+                --exclude-glob data/arc.sqlite \
+                --exclude-glob '*.log' \
+                ./ ${DEPLOY_SECONDARY_REMOTE_DIR}/
+              bye
+            "
+          fi
 
       - name: Verify live site responds
         run: |
