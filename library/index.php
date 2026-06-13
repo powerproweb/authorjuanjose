@@ -20,10 +20,10 @@ require_once dirname(__DIR__) . '/includes/header.php';
     <p class="section-label">Library</p>
     <h2>Library Placeholder Stack</h2>
     <?php
-    $placeholder_collection = 'Library';
-    $placeholder_count = 8;
-    $placeholder_intro = 'Eight placeholder slots are active while the full library catalog is being assembled.';
-    require dirname(__DIR__) . '/includes/components/book-placeholder-list.php';
+    $library_placeholder_collection = 'Library';
+    $library_placeholder_count = 8;
+    $library_placeholder_intro = 'Eight placeholder slots are active while the full library catalog is being assembled.';
+    require dirname(__DIR__) . '/includes/components/library-placeholder-stack.php';
     ?>
   </section>
 

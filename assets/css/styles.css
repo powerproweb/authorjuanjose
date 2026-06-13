@@ -1158,6 +1158,94 @@ a.book-card:hover {
 .buy-btn.x-out {
   text-decoration: line-through;
 }
+/* ---------------------------------------------------------------------------
+   20A-1. LIBRARY DEDICATED PLACEHOLDER STACK
+   --------------------------------------------------------------------------- */
+.library-placeholder-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.library-placeholder-card {
+  display: grid;
+  grid-template-columns: minmax(140px, 180px) 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.library-placeholder-card__figure {
+  margin: 0;
+}
+
+.library-placeholder-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border: 1px dashed var(--border-dark);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(160deg, rgba(157,106,47,.12), rgba(0,0,0,.05));
+  color: var(--ink-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  text-align: center;
+  padding: var(--space-sm);
+}
+
+.library-placeholder-cover__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.library-placeholder-cover__number {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--accent-dark);
+}
+
+.library-placeholder-meta h3 {
+  margin-top: 0;
+  margin-bottom: var(--space-xs);
+}
+
+.library-placeholder-meta__tagline {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-dark);
+  margin-bottom: var(--space-xs);
+}
+
+.library-placeholder-meta p {
+  margin: 0 0 var(--space-sm);
+  color: var(--ink-light);
+}
+
+.library-placeholder-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+@media (max-width: 720px) {
+  .library-placeholder-card {
+    grid-template-columns: 1fr;
+  }
+
+  .library-placeholder-card__figure {
+    max-width: 180px;
+  }
+}
 
 @media (max-width: 720px) {
   .book-list .book-card {
