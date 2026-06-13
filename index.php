@@ -20,11 +20,37 @@ require_once __DIR__ . '/includes/header.php';
 <main class="container page-shell">
 
   <!-- Featured Book -->
-  <section class="section">
+  <section class="section section--book-feature">
     <p class="section-label">Featured Release</p>
     <h2>Jules Verne&rsquo;s Michael Strogoff, or The Courier of the Czar</h2>
+    <div class="book-feature-float" aria-label="Michael Strogoff placeholder covers">
+      <div class="book-feature-float__cover" role="img" aria-label="Placeholder cover for Michael Strogoff book one">
+        <span class="book-feature-float__label">Placeholder</span>
+        <span class="book-feature-float__title">Book One</span>
+      </div>
+      <div class="book-feature-float__cover" role="img" aria-label="Placeholder cover for Michael Strogoff book two">
+        <span class="book-feature-float__label">Placeholder</span>
+        <span class="book-feature-float__title">Book Two</span>
+      </div>
+    </div>
     <p>A gripping two-book adventure novel set in 19th-century Russia during a Tartar rebellion against the Czar. The story follows Michael Strogoff, a brave and resourceful courier entrusted with a vital mission: to deliver an urgent message to the governor of Irkutsk and warn him of a treacherous plot led by the cunning traitor Ivan Ogareff.</p>
     <p>Traveling over 5,000 miles through the harsh Siberian landscape, Michael faces relentless dangers, including enemy spies, brutal Tartar warriors, and the ever-present threat of exposure. Combining elements of historical fiction, adventure, and espionage, Verne&rsquo;s novel is a testament to courage, duty, and resilience.</p>
+  </section>
+  <section class="section section--book-feature">
+    <p class="section-label">Steampunk Coloring Books</p>
+    <h2>Steampunk Coloring Books</h2>
+    <div class="book-feature-float" aria-label="Steampunk coloring book placeholder covers">
+      <div class="book-feature-float__cover" role="img" aria-label="Placeholder cover for steampunk coloring book one">
+        <span class="book-feature-float__label">Placeholder</span>
+        <span class="book-feature-float__title">Book One</span>
+      </div>
+      <div class="book-feature-float__cover" role="img" aria-label="Placeholder cover for steampunk coloring book two">
+        <span class="book-feature-float__label">Placeholder</span>
+        <span class="book-feature-float__title">Book Two</span>
+      </div>
+    </div>
+    <p>A dedicated two-volume coloring collection is in development, featuring intricate steampunk machinery, airships, and worldbuilding motifs designed for immersive creative sessions.</p>
+    <p>This block is set as a placeholder section so final covers, descriptions, and release links can be dropped in as soon as assets are ready.</p>
   </section>
 
   <div class="divider-gear"></div>
