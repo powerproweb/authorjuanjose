@@ -18,10 +18,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
   </div>
 </section>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
   <section class="section">
     <p class="section-label">Fiction</p>
     <h2>Fiction Cover Gallery</h2>
+    <p>Current fiction covers are staged as cinematic catalog tiles while final launch pathways and per-format links are being wired.</p>
     <?php
     $placeholder_collection = 'Fiction';
     $placeholder_intro = 'Current fiction covers are now in place. Missing slots are filled with coming soon covers until links and descriptions are finalized.';

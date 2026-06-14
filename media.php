@@ -6,7 +6,7 @@ $page_description = 'Press resources, interview topics, and media contact for Au
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <h1>Media &amp; Press</h1>
   <p class="lead">Press resources, interview topics, and media contact information for Author Juan Jos&eacute;.</p>

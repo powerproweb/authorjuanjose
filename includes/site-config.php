@@ -4,6 +4,9 @@ declare(strict_types=1);
 $site = [
     'name' => 'AuthorJuanJose.io',
     'author' => 'Author Juan Jose',
+    'tagline' => 'Steampunk science fiction and immersive story worlds',
+    'url' => 'https://authorjuanjose.io',
+    'same_as' => [],
     'year' => (int)date('Y'),
 ];
 

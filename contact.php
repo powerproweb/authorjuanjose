@@ -30,7 +30,7 @@ $page_description = 'Get in touch with Author Juan Jose. General inquiries, medi
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
   <div class="container--narrow" style="margin:0 auto">
 
     <h1>Contact</h1>
