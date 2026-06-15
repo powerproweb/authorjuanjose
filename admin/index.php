@@ -6,6 +6,7 @@ if (!defined('SITE_AUTH_GATE_ENABLED')) {
     define('SITE_AUTH_GATE_ENABLED', false);
 }
 require_once dirname(__DIR__) . '/includes/db.php';
+require_once dirname(__DIR__) . '/includes/contact-inbox-db.php';
 
 $pdo = get_db();
 
@@ -17,6 +18,32 @@ $total_campaigns = (int)$pdo->query('SELECT COUNT(*) FROM campaigns')->fetchColu
 $active_campaigns = (int)$pdo->query('SELECT COUNT(*) FROM campaigns WHERE status = "active"')->fetchColumn();
 $total_reviews   = (int)$pdo->query('SELECT COUNT(*) FROM reviews')->fetchColumn();
 $unverified      = (int)$pdo->query('SELECT COUNT(*) FROM reviews WHERE verified = 0')->fetchColumn();
+$accessibilityReportsTotal = 0;
+$accessibilityReportsNew = 0;
+$accessibilityInboxUrl = '/admin/form-submissions?' . http_build_query([
+    'view' => 'active',
+    'status' => 'all',
+    'q' => 'Accessibility Report:',
+    'per_page' => '25',
+    'page' => '1',
+]);
+
+try {
+    $inboxPdo = get_contact_inbox_db();
+    $reportPrefix = 'Accessibility Report:%';
+    $totalStmt = $inboxPdo->prepare('SELECT COUNT(*) FROM contact_submissions WHERE subject LIKE :prefix');
+    $totalStmt->execute([':prefix' => $reportPrefix]);
+    $accessibilityReportsTotal = (int)$totalStmt->fetchColumn();
+
+    $newStmt = $inboxPdo->prepare('SELECT COUNT(*) FROM contact_submissions WHERE subject LIKE :prefix AND status = :status');
+    $newStmt->execute([
+        ':prefix' => $reportPrefix,
+        ':status' => 'new',
+    ]);
+    $accessibilityReportsNew = (int)$newStmt->fetchColumn();
+} catch (Throwable $e) {
+    error_log('Admin accessibility report count failed: ' . $e->getMessage());
+}
 
 $page_title = 'Admin | AuthorJuanJose.io';
 require_once dirname(__DIR__) . '/includes/header.php';
@@ -69,6 +96,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
     <a class="card" href="/admin/form-submissions" style="text-decoration:none;color:var(--ink)">
       <h3>Contact Inbox</h3>
       <p>Review contact submissions, update statuses, add notes, archive, and restore.</p>
+    </a>
+    <a class="card" href="<?php echo htmlspecialchars($accessibilityInboxUrl, ENT_QUOTES, 'UTF-8'); ?>" style="text-decoration:none;color:var(--ink)">
+      <h3>Accessibility Reports</h3>
+      <p>Review barrier reports submitted from the Accessibility page.</p>
+      <p style="color:var(--ink-light)"><?php echo $accessibilityReportsTotal; ?> total reports<?php echo $accessibilityReportsNew > 0 ? ' (' . $accessibilityReportsNew . ' new)' : ''; ?></p>
     </a>
   </div>
 

@@ -471,7 +471,7 @@ $baseListParams = [
 $page_title = 'Contact Inbox | Admin';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
-<main class="container page-shell">
+<main class="container page-shell admin-inbox-page">
   <h1>Contact Inbox</h1>
   <p><a href="/admin">&larr; Admin Dashboard</a></p>
 
@@ -537,7 +537,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
     </div>
   </form>
 
-  <div class="card-grid">
+  <div class="admin-inbox-layout">
     <section class="panel">
       <h2><?php echo $view === 'active' ? 'Active Submissions' : 'Archived Submissions'; ?> (<?php echo $filteredTotal; ?>)</h2>
 
@@ -557,6 +557,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                   <strong><a href="<?php echo $h($itemUrl); ?>"><?php echo $h($ticketRef); ?></a></strong>
                   <span class="admin-list-item__email"><?php echo $h($submission['email']); ?></span>
                   <span class="admin-list-item__meta"><?php echo ucfirst($h($submission['inquiry_type'])); ?> &middot; <?php echo $h($submission['full_name']); ?></span>
+                  <span class="admin-list-item__meta">Subject: <?php echo $h($submission['subject']); ?></span>
                   <span class="admin-list-item__meta"><?php echo $h($submission['submitted_at']); ?> &middot; Status: <?php echo ucfirst($h($submission['status'])); ?></span>
                 </div>
               </div>
