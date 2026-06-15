@@ -38,13 +38,26 @@ if ($book === null) {
 $page_title = htmlspecialchars($book['title'], ENT_QUOTES, 'UTF-8') . ' | AuthorJuanJose.io';
 $page_description = $book['hook'] ?? $book['title'];
 $page_og_image = $book['cover'] ?? '/assets/images/og-default.jpg';
+$page_og_type = 'book';
+$page_json_ld = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Book',
+    'name' => $book['title'],
+    'author' => [
+        '@type' => 'Person',
+        'name' => 'Author Juan Jose',
+    ],
+    'bookFormat' => 'https://schema.org/EBook',
+    'inLanguage' => 'en',
+    'image' => 'https://authorjuanjose.io' . ($book['cover'] ?? '/assets/images/og-default.jpg'),
+    'url' => 'https://authorjuanjose.io/fiction/' . $book['slug'],
+];
 $body_class = 'cards-drjessie';
 $series_name = get_book_series_name($book);
 
 require_once $project_root . '/includes/header.php';
 ?>
-
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <!-- Book Detail Header -->
   <section class="book-detail">

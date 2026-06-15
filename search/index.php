@@ -14,7 +14,7 @@ $page_title = ($query !== '' ? htmlspecialchars($query, ENT_QUOTES, 'UTF-8') . '
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <h1>Search</h1>
 

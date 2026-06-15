@@ -18,10 +18,11 @@ require_once dirname(__DIR__) . '/includes/header.php';
   </div>
 </section>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
   <section class="section">
     <p class="section-label">Non-Fiction</p>
     <h2>Non-Fiction Catalog Placeholder</h2>
+    <p>The non-fiction track is in active build mode. This section preserves discoverability while title assets and release metadata are finalized.</p>
     <?php
     $placeholder_collection = 'Non-Fiction';
     $placeholder_count = 8;

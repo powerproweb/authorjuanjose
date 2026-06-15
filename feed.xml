@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>AuthorJuanJose.io Journal</title>
+    <link>https://authorjuanjose.io/journal</link>
+    <description>Writing updates, launch notes, and behind-the-book dispatches from Author Juan Jose.</description>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 14 Jun 2026 00:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Welcome to the Journal</title>
+      <link>https://authorjuanjose.io/journal#welcome-to-the-journal</link>
+      <guid>https://authorjuanjose.io/journal#welcome-to-the-journal</guid>
+      <pubDate>Thu, 09 Apr 2026 00:00:00 GMT</pubDate>
+      <description>This is where the journey gets documented: writing updates, behind-the-book notes, essays, reflections, and the thinking behind the work.</description>
+    </item>
+  </channel>
+</rss>

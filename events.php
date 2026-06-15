@@ -6,7 +6,7 @@ $page_description = 'Upcoming appearances, book launches, speaking engagements, 
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <h1>Events</h1>
   <p class="lead">Appearances, signings, talks, online launches, podcasts, and speaking engagements.</p>

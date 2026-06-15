@@ -24,7 +24,7 @@ $journal_entries = [
 $categories = ['All', 'Fiction', 'Non-Fiction', 'Behind the Scenes'];
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <h1>Journal</h1>
   <p class="lead">Writing updates, behind-the-book notes, essays, reflections, and the thinking behind the work.</p>

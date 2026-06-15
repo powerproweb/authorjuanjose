@@ -17,7 +17,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
   </div>
 </section>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <!-- What This Is -->
   <section class="section">

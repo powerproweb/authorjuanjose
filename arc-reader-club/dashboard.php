@@ -53,7 +53,7 @@ $show_member_navigation = true;
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <h1>Welcome back, <?php echo $member_name; ?></h1>
   <p class="lead">Your ARC Reader Club dashboard.</p>

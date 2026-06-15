@@ -57,10 +57,10 @@ $page_description = 'Browse all fiction and non-fiction titles by Author Juan Jo
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <h1>Library</h1>
-  <p class="lead">Browse all fiction and non-fiction titles. Filter by type, tag, or status.</p>
+  <p class="lead">Browse all fiction and non-fiction titles through a single mechanical index. Filter by type, tag, or status.</p>
 
   <hr class="ornament-rule">
 

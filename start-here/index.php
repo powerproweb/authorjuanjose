@@ -74,7 +74,7 @@ $body_class = 'cards-drjessie';
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
   <div class="container--narrow" style="margin:0 auto">
 
     <h1>Start Here</h1>

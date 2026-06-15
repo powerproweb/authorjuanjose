@@ -10,7 +10,10 @@ require_once __DIR__ . '/site-config.php';
 $page_title = $page_title ?? $site['name'];
 $page_description = $page_description ?? 'Official website of Author Juan Jose — steampunk science fiction, non-fiction, and the ARC Reader Club.';
 $page_og_image = $page_og_image ?? '/assets/images/og-default.jpg';
+$page_og_type = $page_og_type ?? 'website';
 $page_canonical = $page_canonical ?? '';
+$page_noindex = $page_noindex ?? false;
+$page_json_ld = $page_json_ld ?? [];
 $body_class = trim((string)($body_class ?? ''));
 $show_arc_sub_navigation = $show_arc_sub_navigation ?? false;
 $show_member_navigation = $show_member_navigation ?? false;
@@ -21,7 +24,16 @@ $current_path = is_string($current_path) && $current_path !== '' ? $current_path
 
 $_site_base = 'https://authorjuanjose.io';
 $_canonical = $page_canonical !== '' ? $page_canonical : $_site_base . $current_path;
-$_asset_v = '?v=11';
+$_asset_v = '?v=epic-01';
+
+$same_as = [];
+if (isset($site['same_as']) && is_array($site['same_as'])) {
+    foreach ($site['same_as'] as $url) {
+        if (is_string($url) && $url !== '') {
+            $same_as[] = $url;
+        }
+    }
+}
 
 $normalize_path = static function (string $path): string {
     $trimmed = rtrim($path, '/');
@@ -49,6 +61,62 @@ $is_nav_item_active = static function (array $item) use (&$is_nav_item_active, $
 
     return false;
 };
+
+$private_noindex_prefixes = [
+    '/admin',
+    '/data',
+    '/forms',
+    '/cron',
+    '/arc-reader-club/dashboard',
+    '/arc-reader-club/current-missions',
+    '/arc-reader-club/submit-review',
+    '/arc-reader-club/my-distinctions',
+    '/arc-reader-club/archive-record',
+];
+if ($page_noindex !== true) {
+    foreach ($private_noindex_prefixes as $prefix) {
+        if (str_starts_with($current_path, $prefix)) {
+            $page_noindex = true;
+            break;
+        }
+    }
+}
+$arc_logged_in = isset($_SESSION['arc_member_id']) && (int)$_SESSION['arc_member_id'] > 0;
+$site_logged_in = isset($_SESSION['site_auth']) && $_SESSION['site_auth'] === true;
+
+$person_schema = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Person',
+    'name' => $site['author'],
+    'url' => $_site_base,
+    'jobTitle' => 'Author',
+];
+if ($same_as !== []) {
+    $person_schema['sameAs'] = $same_as;
+}
+
+$website_schema = [
+    '@context' => 'https://schema.org',
+    '@type' => 'WebSite',
+    'name' => $site['name'],
+    'url' => $_site_base,
+    'potentialAction' => [
+        '@type' => 'SearchAction',
+        'target' => $_site_base . '/search?q={search_term_string}',
+        'query-input' => 'required name=search_term_string',
+    ],
+];
+
+$json_ld_blocks = [$person_schema, $website_schema];
+if (is_array($page_json_ld) && isset($page_json_ld['@type'])) {
+    $json_ld_blocks[] = $page_json_ld;
+} elseif (is_array($page_json_ld)) {
+    foreach ($page_json_ld as $json_ld) {
+        if (is_array($json_ld) && $json_ld !== []) {
+            $json_ld_blocks[] = $json_ld;
+        }
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -56,15 +124,22 @@ $is_nav_item_active = static function (array $item) use (&$is_nav_item_active, $
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="<?php echo htmlspecialchars($page_description, ENT_QUOTES, 'UTF-8'); ?>">
+  <?php if ($page_noindex): ?>
+    <meta name="robots" content="noindex, nofollow">
+  <?php endif; ?>
   <title><?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?></title>
   <link rel="canonical" href="<?php echo htmlspecialchars($_canonical, ENT_QUOTES, 'UTF-8'); ?>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=Space+Mono:wght@400;700&family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
   <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="alternate" type="application/rss+xml" title="AuthorJuanJose.io Journal Feed" href="https://authorjuanjose.io/feed.xml">
 
   <!-- Open Graph -->
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="<?php echo htmlspecialchars($page_og_type, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:site_name" content="<?php echo htmlspecialchars($site['name'], ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:title" content="<?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?>">
   <meta property="og:description" content="<?php echo htmlspecialchars($page_description, ENT_QUOTES, 'UTF-8'); ?>">
@@ -76,50 +151,56 @@ $is_nav_item_active = static function (array $item) use (&$is_nav_item_active, $
   <meta name="twitter:title" content="<?php echo htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:description" content="<?php echo htmlspecialchars($page_description, ENT_QUOTES, 'UTF-8'); ?>">
   <meta name="twitter:image" content="<?php echo htmlspecialchars($_site_base . $page_og_image, ENT_QUOTES, 'UTF-8'); ?>">
-
-  <!-- JSON-LD -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": <?php echo json_encode($site['name']); ?>,
-    "url": "<?php echo $_site_base; ?>",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "<?php echo $_site_base; ?>/search?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
+  <?php foreach ($json_ld_blocks as $json_ld): ?>
+    <script type="application/ld+json"><?php echo json_encode($json_ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?></script>
+  <?php endforeach; ?>
 
   <link rel="stylesheet" href="/assets/css/styles.css<?php echo $_asset_v; ?>">
+  <link rel="stylesheet" href="/assets/css/redesign.css<?php echo $_asset_v; ?>">
 </head>
 <body<?php echo $body_class !== '' ? ' class="' . htmlspecialchars($body_class, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
   <a class="skip-link" href="#main-content">Skip to content</a>
-  <header class="site-header">
-    <div class="container">
-      <a class="site-brand" href="/"><?php echo htmlspecialchars($site['name'], ENT_QUOTES, 'UTF-8'); ?></a>
-      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
-      <nav class="main-nav" aria-label="Main site navigation">
+  <header class="site-header" id="top">
+    <div class="container site-header__inner">
+      <div class="site-header__brand">
+        <a class="site-brand" href="/"><?php echo htmlspecialchars($site['name'], ENT_QUOTES, 'UTF-8'); ?></a>
+        <span class="site-brand__tagline"><?php echo htmlspecialchars((string)$site['tagline'], ENT_QUOTES, 'UTF-8'); ?></span>
+      </div>
+      <div class="site-header__utility">
+        <?php if ($arc_logged_in): ?>
+          <a href="/arc-reader-club/dashboard">Member Dashboard</a>
+          <a href="/arc-reader-club/logout">Member Logout</a>
+        <?php else: ?>
+          <a href="/arc-reader-club/login">Member Login</a>
+        <?php endif; ?>
+        <?php if ($site_logged_in): ?>
+          <a href="/?site_logout=1">Site Logout</a>
+        <?php endif; ?>
+      </div>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="primary-nav">&#9776;</button>
+      <nav class="main-nav" id="primary-nav" aria-label="Main site navigation">
         <ul class="nav-list">
-          <?php foreach ($main_navigation as $item): ?>
+          <?php foreach ($main_navigation as $nav_index => $item): ?>
             <?php
             $item_label = isset($item['label']) && is_string($item['label']) ? $item['label'] : '';
             $has_children = isset($item['children']) && is_array($item['children']) && $item['children'] !== [];
             $item_is_active = $is_nav_item_active($item);
             $is_cta = isset($item['is_cta']) && $item['is_cta'] === true;
+            $dropdown_id = 'nav-dropdown-' . (int)$nav_index;
             ?>
             <li class="nav-item<?php echo $has_children ? ' nav-item--has-dropdown' : ''; ?>">
               <?php if ($has_children): ?>
                 <button
                   class="nav-dropdown-toggle<?php echo $item_is_active ? ' is-active' : ''; ?>"
                   type="button"
+                  id="<?php echo htmlspecialchars($dropdown_id . '-toggle', ENT_QUOTES, 'UTF-8'); ?>"
                   aria-haspopup="true"
                   aria-expanded="false"
+                  aria-controls="<?php echo htmlspecialchars($dropdown_id, ENT_QUOTES, 'UTF-8'); ?>"
                 >
                   <?php echo htmlspecialchars($item_label, ENT_QUOTES, 'UTF-8'); ?>
                 </button>
-                <ul class="nav-dropdown" aria-label="<?php echo htmlspecialchars($item_label, ENT_QUOTES, 'UTF-8'); ?> submenu">
+                <ul class="nav-dropdown" id="<?php echo htmlspecialchars($dropdown_id, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($item_label, ENT_QUOTES, 'UTF-8'); ?> submenu">
                   <?php foreach ($item['children'] as $child): ?>
                     <?php
                     $child_url = isset($child['url']) && is_string($child['url']) ? $child['url'] : '/';
@@ -149,7 +230,7 @@ $is_nav_item_active = static function (array $item) use (&$is_nav_item_active, $
   </header>
 
   <?php if ($show_arc_sub_navigation): ?>
-    <nav class="subnav" aria-label="ARC Reader Club navigation">
+    <nav class="subnav subnav--arc" aria-label="ARC Reader Club navigation">
       <div class="container">
         <ul class="nav-list">
           <?php foreach ($arc_navigation as $item): ?>

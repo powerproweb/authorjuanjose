@@ -31,7 +31,7 @@ $page_description = 'Reader artwork gallery. Members upload photos of their comp
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<main class="container page-shell">
+<main id="main-content" class="container page-shell">
 
   <h1>Coloring Book Gallery</h1>
   <p class="lead">Artwork from our readers. Members can upload photos of their completed coloring book pages.</p>
