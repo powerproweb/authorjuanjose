@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/book-catalog.php';
+require_once __DIR__ . '/journal-data.php';
 
 function rebuild_search_index(): int
 {
@@ -49,16 +50,28 @@ function rebuild_search_index(): int
         $count++;
     }
 
-    // Index journal entries (loaded from journal.php data)
-    $journal_file = dirname(__DIR__) . '/journal.php';
-    if (file_exists($journal_file)) {
-        // Extract $journal_entries by including the file in a controlled scope
-        $journal_entries = extract_journal_entries();
-        foreach ($journal_entries as $entry) {
-            $body = strip_tags($entry['body'] ?? '') . ' ' . ($entry['excerpt'] ?? '') . ' ' . ($entry['category'] ?? '');
-            $insert->execute(['journal', $entry['slug'], $entry['title'], $body, '/journal#' . $entry['slug']]);
-            $count++;
+    // Index journal entries
+    $journal_entries = ajj_load_journal_entries();
+    foreach ($journal_entries as $entry) {
+        $slug = (string)($entry['slug'] ?? '');
+        if ($slug === '') {
+            continue;
         }
+
+        $body = trim(implode(' ', [
+            (string)($entry['body'] ?? ''),
+            (string)($entry['excerpt'] ?? ''),
+            (string)($entry['category'] ?? ''),
+        ]));
+
+        $insert->execute([
+            'journal',
+            $slug,
+            (string)($entry['title'] ?? 'Journal Entry'),
+            $body,
+            '/journal#' . $slug,
+        ]);
+        $count++;
     }
 
     // Index static pages
@@ -78,44 +91,6 @@ function rebuild_search_index(): int
     return $count;
 }
 
-/**
- * Extract journal entries array without rendering the page.
- */
-function extract_journal_entries(): array
-{
-    // The journal.php file defines $journal_entries before including header.
-    // We parse it manually to avoid rendering.
-    $journal_file = dirname(__DIR__) . '/journal.php';
-    $content = file_get_contents($journal_file);
-
-    // Look for the array definition — if the structure changes, this needs updating
-    if (preg_match('/\$journal_entries\s*=\s*\[/', $content)) {
-        // Use a sandboxed eval approach: extract just the variable
-        // This is safe because we control the file content
-        $page_title = ''; // Prevent header.php from being required
-        $header_included = false;
-
-        // Create a temporary file that just returns the array
-        $temp = '<?php ' .
-            'declare(strict_types=1); ' .
-            '$page_title = ""; ' .
-            'function require_once_noop() {} ' .
-            // Extract from the beginning up to the closing of the array
-            '';
-
-        // Simpler approach: just define common entries as a fallback
-        return [
-            [
-                'title'    => 'Welcome to the Journal',
-                'slug'     => 'welcome-to-the-journal',
-                'category' => 'Behind the Scenes',
-                'body'     => 'Writing updates, behind-the-book notes, essays, reflections',
-            ],
-        ];
-    }
-
-    return [];
-}
 
 /**
  * Search the index. Returns matching rows with highlighted excerpts.
