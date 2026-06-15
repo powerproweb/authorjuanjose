@@ -8,6 +8,7 @@ require_once dirname(__DIR__) . '/includes/contact-inbox-db.php';
 require_once dirname(__DIR__) . '/includes/rate-limit.php';
 
 $contactPath = '/contact';
+$thankYouPath = '/thank-you?source=contact';
 
 $redirect = static function (string $url): void {
     header('Location: ' . $url, true, 303);
@@ -24,8 +25,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
 // Honeypot
 $honeypot = trim((string)($_POST['fax'] ?? ''));
 if ($honeypot !== '') {
-    $_SESSION['contact_success'] = 'Message sent. Thank you for reaching out.';
-    $redirect($contactPath);
+    $_SESSION['thank_you_payload'] = [
+        'source' => 'contact',
+        'title' => 'Message Received',
+        'message' => 'Thank you for reaching out. Your message was received successfully.',
+    ];
+    $redirect($thankYouPath);
 }
 
 // CSRF
@@ -196,5 +201,10 @@ if (!$savedToDb && !$savedToFile) {
 unset($_SESSION['contact_old'], $_SESSION['contact_errors']);
 unset($_SESSION['contact_human_target'], $_SESSION['contact_form_started_at']);
 $_SESSION['contact_token'] = bin2hex(random_bytes(32));
-$_SESSION['contact_success'] = 'Your message has been sent. Reference: ' . $ticketRef . '. We will get back to you as soon as possible.';
-$redirect($contactPath);
+$_SESSION['thank_you_payload'] = [
+    'source' => 'contact',
+    'title' => 'Message Received',
+    'message' => 'Your message has been sent. We will get back to you as soon as possible.',
+    'reference' => $ticketRef,
+];
+$redirect($thankYouPath);

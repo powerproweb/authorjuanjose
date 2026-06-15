@@ -8,6 +8,7 @@ require_once dirname(__DIR__) . '/includes/contact-inbox-db.php';
 require_once dirname(__DIR__) . '/includes/rate-limit.php';
 
 $accessibilityPath = '/accessibility';
+$thankYouPath = '/thank-you?source=accessibility';
 
 $redirect = static function (string $url): void {
     header('Location: ' . $url, true, 303);
@@ -23,8 +24,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
 
 $honeypot = trim((string)($_POST['company'] ?? ''));
 if ($honeypot !== '') {
-    $_SESSION['accessibility_success'] = 'Accessibility report submitted. Thank you.';
-    $redirect($accessibilityPath);
+    $_SESSION['thank_you_payload'] = [
+        'source' => 'accessibility',
+        'title' => 'Accessibility Report Received',
+        'message' => 'Thank you for the accessibility report. Your submission was received.',
+    ];
+    $redirect($thankYouPath);
 }
 
 $token = (string)($_POST['_token'] ?? '');
@@ -226,5 +231,10 @@ if (!$savedToDb && !$savedToFile) {
 
 unset($_SESSION['accessibility_old'], $_SESSION['accessibility_errors']);
 $_SESSION['accessibility_token'] = bin2hex(random_bytes(32));
-$_SESSION['accessibility_success'] = 'Accessibility report submitted. Reference: ' . $ticketRef . '. Thank you for helping improve access.';
-$redirect($accessibilityPath);
+$_SESSION['thank_you_payload'] = [
+    'source' => 'accessibility',
+    'title' => 'Accessibility Report Received',
+    'message' => 'Thank you for helping improve access. Your report has been submitted successfully.',
+    'reference' => $ticketRef,
+];
+$redirect($thankYouPath);

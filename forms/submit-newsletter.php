@@ -8,6 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 // Redirect back to referring page
 $referer = $_SERVER['HTTP_REFERER'] ?? '/';
 $redirect_to = parse_url($referer, PHP_URL_PATH) ?: '/';
+$thankYouPath = '/thank-you?source=newsletter';
 
 $redirect = static function (string $url): void {
     header('Location: ' . $url, true, 303);
@@ -23,8 +24,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
 
 // Honeypot
 if (trim((string)($_POST['fax'] ?? '')) !== '') {
-    $_SESSION['newsletter_success'] = 'You have been subscribed. Thank you!';
-    $redirect($redirect_to);
+    $_SESSION['thank_you_payload'] = [
+        'source' => 'newsletter',
+        'title' => 'Subscription Confirmed',
+        'message' => 'Thank you for subscribing. You are on the list for future updates.',
+    ];
+    $redirect($thankYouPath);
 }
 
 $email    = trim((string)($_POST['email'] ?? ''));
@@ -78,5 +83,9 @@ if ($line !== false) {
     file_put_contents($storageDir . '/newsletter-signups.ndjson', $line . PHP_EOL, FILE_APPEND | LOCK_EX);
 }
 
-$_SESSION['newsletter_success'] = 'You are subscribed! Welcome aboard.';
-$redirect($redirect_to);
+$_SESSION['thank_you_payload'] = [
+    'source' => 'newsletter',
+    'title' => 'Subscription Confirmed',
+    'message' => 'You are subscribed. Welcome aboard.',
+];
+$redirect($thankYouPath);
