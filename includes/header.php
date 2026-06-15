@@ -24,7 +24,7 @@ $current_path = is_string($current_path) && $current_path !== '' ? $current_path
 
 $_site_base = 'https://authorjuanjose.io';
 $_canonical = $page_canonical !== '' ? $page_canonical : $_site_base . $current_path;
-$_asset_v = '?v=epic-01';
+$_asset_v = '?v=epic-02';
 
 $same_as = [];
 if (isset($site['same_as']) && is_array($site['same_as'])) {
