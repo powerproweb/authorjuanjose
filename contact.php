@@ -24,6 +24,30 @@ $old = static function (string $key) use ($flashOld): string {
 $err = static function (string $key) use ($flashErrors): string {
     return (string)($flashErrors[$key] ?? '');
 };
+$errorLabel = static function (string $key): string {
+    return match ($key) {
+        'form' => 'Form',
+        'inquiry_type' => 'Inquiry type',
+        'name' => 'Name',
+        'email' => 'Email',
+        'subject' => 'Subject',
+        'message' => 'Message',
+        'human_slider' => 'Human check',
+        default => 'Validation',
+    };
+};
+
+$validationErrors = [];
+if (is_array($flashErrors)) {
+    foreach ($flashErrors as $key => $message) {
+        $errorKey = is_string($key) ? $key : 'form';
+        $errorMessage = trim((string)$message);
+        if ($errorMessage !== '') {
+            $validationErrors[$errorKey] = $errorMessage;
+        }
+    }
+}
+$hasValidationErrors = $validationErrors !== [];
 
 $page_title = 'Contact | AuthorJuanJose.io';
 $page_description = 'Get in touch with Author Juan Jose. General inquiries, media requests, speaking engagements, and ARC Reader Club questions.';
@@ -42,8 +66,22 @@ require_once __DIR__ . '/includes/header.php';
       <div class="alert alert--success" role="status"><?php echo htmlspecialchars($flashSuccess, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
 
-    <?php if ($err('form') !== ''): ?>
-      <div class="alert alert--error" role="alert"><?php echo htmlspecialchars($err('form'), ENT_QUOTES, 'UTF-8'); ?></div>
+    <?php if ($hasValidationErrors): ?>
+      <div class="alert alert--error" role="alert">
+        <strong>Submission blocked by validation checks.</strong><br>
+        Please review the issues below, then submit again.
+        <ul class="mb-0" style="margin-top:var(--space-sm);">
+          <?php foreach ($validationErrors as $errorKey => $errorMessage): ?>
+            <li>
+              <strong><?php echo htmlspecialchars($errorLabel((string)$errorKey), ENT_QUOTES, 'UTF-8'); ?>:</strong>
+              <?php echo htmlspecialchars((string)$errorMessage, ENT_QUOTES, 'UTF-8'); ?>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+        <p class="mb-0" style="margin-top:var(--space-sm);">
+          <strong>Quick debug tip:</strong> For the human check, slide to 100%, wait at least 1 second, then submit.
+        </p>
+      </div>
     <?php endif; ?>
 
     <form method="post" action="/forms/submit-contact" id="contact-form" novalidate>
