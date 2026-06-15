@@ -473,6 +473,25 @@ body.revisit .hero--aperture::before {
 .card-grid {
   gap: 1.1rem;
 }
+.admin-inbox-page.container {
+  width: min(1480px, 96%);
+}
+.admin-inbox-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(440px, 1.4fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+.admin-inbox-layout > .panel {
+  min-width: 0;
+}
+.admin-inbox-layout > .panel + .panel {
+  margin-top: 0;
+}
+.admin-inbox-layout .admin-list-item,
+.admin-inbox-layout .admin-list-item__info {
+  min-width: 0;
+}
 
 .book-card {
   border-radius: var(--radius-md);
@@ -943,6 +962,14 @@ textarea:focus-visible {
 
   .footer-meta {
     flex-direction: column;
+  }
+
+  .admin-inbox-page.container {
+    width: min(1200px, 94%);
+  }
+
+  .admin-inbox-layout {
+    grid-template-columns: 1fr;
   }
 }
 
