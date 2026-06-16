@@ -27,6 +27,21 @@ $nl_error   = $_SESSION['newsletter_error'] ?? '';
 unset($_SESSION['newsletter_success'], $_SESSION['newsletter_error']);
 
 $nl_css = $newsletter_style === 'inline' ? 'newsletter-form--inline' : '';
+
+require_once dirname(__DIR__) . '/db.php';
+$newsletter_lists = [];
+try {
+    $newsletter_lists = get_active_mailing_lists(get_db());
+} catch (Throwable $e) {
+    $newsletter_lists = [];
+}
+
+$selected_list_slugs = ['author-news' => true];
+if ($newsletter_preselect === 'fiction') {
+    $selected_list_slugs['fiction'] = true;
+} elseif ($newsletter_preselect === 'non-fiction') {
+    $selected_list_slugs['non-fiction'] = true;
+}
 ?>
 <div class="newsletter-signup">
   <h3 class="newsletter-signup__heading"><?php echo htmlspecialchars($newsletter_heading, ENT_QUOTES, 'UTF-8'); ?></h3>
@@ -53,17 +68,31 @@ $nl_css = $newsletter_style === 'inline' ? 'newsletter-form--inline' : '';
       <input name="name" type="text" placeholder="Name (optional)" autocomplete="name">
     </div>
 
-    <?php if ($newsletter_preselect === ''): ?>
-      <div class="newsletter-form__field">
-        <select name="interest">
-          <option value="both">All Updates</option>
-          <option value="fiction">Fiction Only</option>
-          <option value="non-fiction">Non-Fiction Only</option>
-        </select>
-      </div>
-    <?php else: ?>
-      <input type="hidden" name="interest" value="<?php echo htmlspecialchars($newsletter_preselect, ENT_QUOTES, 'UTF-8'); ?>">
-    <?php endif; ?>
+    <div class="newsletter-form__field newsletter-form__field--lists">
+      <fieldset class="newsletter-form__lists">
+        <legend>Choose updates</legend>
+        <?php if ($newsletter_lists !== []): ?>
+          <?php foreach ($newsletter_lists as $list): ?>
+            <?php
+            $slug = strtolower((string)($list['slug'] ?? ''));
+            $isChecked = isset($selected_list_slugs[$slug]);
+            ?>
+            <label class="newsletter-form__checkbox">
+              <input type="checkbox" name="list_slugs[]" value="<?php echo htmlspecialchars($slug, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $isChecked ? ' checked' : ''; ?>>
+              <span>
+                <strong><?php echo htmlspecialchars((string)($list['name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></strong>
+                <?php if (trim((string)($list['description'] ?? '')) !== ''): ?>
+                  <small><?php echo htmlspecialchars((string)$list['description'], ENT_QUOTES, 'UTF-8'); ?></small>
+                <?php endif; ?>
+              </span>
+            </label>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <input type="hidden" name="list_slugs[]" value="author-news">
+          <p class="newsletter-signup__text">You will receive Author News updates.</p>
+        <?php endif; ?>
+      </fieldset>
+    </div>
 
     <div class="newsletter-form__field">
       <button class="button" type="submit">Subscribe</button>
