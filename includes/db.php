@@ -146,6 +146,52 @@ function init_schema(PDO $pdo): void
         )
     ');
 
+    // Author-only mailing list system
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS mailing_lists (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug        TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+            name        TEXT    NOT NULL,
+            description TEXT    NOT NULL DEFAULT "",
+            is_active   INTEGER NOT NULL DEFAULT 1 CHECK(is_active IN (0,1)),
+            sort_order  INTEGER NOT NULL DEFAULT 100,
+            created_at  TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS mailing_contacts (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            email      TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+            name       TEXT    NOT NULL DEFAULT "",
+            status     TEXT    NOT NULL DEFAULT "active" CHECK(status IN ("active","unsubscribed","suppressed","bounced")),
+            source     TEXT    NOT NULL DEFAULT "",
+            created_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS mailing_list_memberships (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            contact_id      INTEGER NOT NULL REFERENCES mailing_contacts(id) ON DELETE CASCADE,
+            list_id         INTEGER NOT NULL REFERENCES mailing_lists(id) ON DELETE CASCADE,
+            status          TEXT    NOT NULL DEFAULT "active" CHECK(status IN ("active","unsubscribed")),
+            source          TEXT    NOT NULL DEFAULT "",
+            subscribed_at   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            unsubscribed_at TEXT,
+            updated_at      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(contact_id, list_id)
+        )
+    ');
+
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+            migration_key TEXT PRIMARY KEY,
+            completed_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+
     $pdo->exec('
         CREATE TABLE IF NOT EXISTS notifications (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -174,6 +220,10 @@ function init_schema(PDO $pdo): void
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_gallery_status ON gallery_uploads(status)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_notif_member_read ON notifications(member_id, read)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_email_queue_status ON email_queue(status)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_mailing_lists_active_order ON mailing_lists(is_active, sort_order, id)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_mailing_contacts_status ON mailing_contacts(status)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_mailing_memberships_list_status ON mailing_list_memberships(list_id, status)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_mailing_memberships_contact_status ON mailing_list_memberships(contact_id, status)');
 
     // Phase 5 tables
     $pdo->exec('
@@ -189,6 +239,162 @@ function init_schema(PDO $pdo): void
         )
     ');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_search_type ON search_index(content_type)');
+
+    seed_author_mailing_lists($pdo);
+    migrate_newsletter_subscribers_to_mailing_lists($pdo);
+}
+
+// ---------------------------------------------------------------------------
+//  Mailing list helpers
+// ---------------------------------------------------------------------------
+
+function seed_author_mailing_lists(PDO $pdo): void
+{
+    $defaults = [
+        ['slug' => 'author-news', 'name' => 'Author News', 'description' => 'General updates and announcements.', 'sort_order' => 10],
+        ['slug' => 'fiction', 'name' => 'Fiction Releases', 'description' => 'Fiction launch and story-world updates.', 'sort_order' => 20],
+        ['slug' => 'non-fiction', 'name' => 'Non-Fiction Releases', 'description' => 'Essays, resources, and non-fiction updates.', 'sort_order' => 30],
+        ['slug' => 'arc', 'name' => 'ARC Reader Club', 'description' => 'Advance reader opportunities and club updates.', 'sort_order' => 40],
+        ['slug' => 'events', 'name' => 'Events and Appearances', 'description' => 'Readings, speaking events, and appearances.', 'sort_order' => 50],
+        ['slug' => 'media', 'name' => 'Media and Press', 'description' => 'Press and interview related updates.', 'sort_order' => 60],
+    ];
+
+    $insert = $pdo->prepare(
+        'INSERT OR IGNORE INTO mailing_lists (slug, name, description, sort_order) VALUES (?, ?, ?, ?)'
+    );
+
+    foreach ($defaults as $list) {
+        $insert->execute([
+            $list['slug'],
+            $list['name'],
+            $list['description'],
+            $list['sort_order'],
+        ]);
+    }
+}
+
+function get_active_mailing_lists(PDO $pdo): array
+{
+    return $pdo->query('
+        SELECT id, slug, name, description, sort_order
+        FROM mailing_lists
+        WHERE is_active = 1
+        ORDER BY sort_order ASC, id ASC
+    ')->fetchAll();
+}
+
+function get_active_mailing_list_ids_by_slug(PDO $pdo): array
+{
+    $rows = get_active_mailing_lists($pdo);
+    $map = [];
+    foreach ($rows as $row) {
+        $map[strtolower((string)$row['slug'])] = (int)$row['id'];
+    }
+
+    return $map;
+}
+
+function normalize_mailing_list_slugs(array $slugs): array
+{
+    $normalized = [];
+    foreach ($slugs as $slug) {
+        $value = strtolower(trim((string)$slug));
+        if ($value === '') {
+            continue;
+        }
+        $normalized[$value] = true;
+    }
+
+    return array_keys($normalized);
+}
+
+function map_legacy_newsletter_interest_to_list_slugs(string $interest): array
+{
+    return match ($interest) {
+        'fiction' => ['author-news', 'fiction'],
+        'non-fiction' => ['author-news', 'non-fiction'],
+        default => ['author-news', 'fiction', 'non-fiction'],
+    };
+}
+
+function has_schema_migration(PDO $pdo, string $migrationKey): bool
+{
+    $stmt = $pdo->prepare('SELECT 1 FROM schema_migrations WHERE migration_key = ? LIMIT 1');
+    $stmt->execute([$migrationKey]);
+    return $stmt->fetchColumn() !== false;
+}
+
+function mark_schema_migration(PDO $pdo, string $migrationKey): void
+{
+    $stmt = $pdo->prepare('INSERT OR IGNORE INTO schema_migrations (migration_key) VALUES (?)');
+    $stmt->execute([$migrationKey]);
+}
+
+function migrate_newsletter_subscribers_to_mailing_lists(PDO $pdo): void
+{
+    $migrationKey = 'mailing_legacy_newsletter_subscribers_to_lists_v1';
+    if (has_schema_migration($pdo, $migrationKey)) {
+        return;
+    }
+    $legacyCount = (int)$pdo->query('SELECT COUNT(*) FROM newsletter_subscribers')->fetchColumn();
+    if ($legacyCount === 0) {
+        mark_schema_migration($pdo, $migrationKey);
+        return;
+    }
+
+    $listMap = get_active_mailing_list_ids_by_slug($pdo);
+    if ($listMap === []) {
+        return;
+    }
+
+    $legacyRows = $pdo->query('SELECT email, name, interest FROM newsletter_subscribers')->fetchAll();
+    if ($legacyRows === []) {
+        mark_schema_migration($pdo, $migrationKey);
+        return;
+    }
+
+    $insertContact = $pdo->prepare(
+        'INSERT OR IGNORE INTO mailing_contacts (email, name, source) VALUES (?, ?, "legacy_newsletter_migration")'
+    );
+    $updateContactName = $pdo->prepare(
+        'UPDATE mailing_contacts SET name = ?, updated_at = CURRENT_TIMESTAMP WHERE email = ? AND name = ""'
+    );
+    $findContact = $pdo->prepare('SELECT id FROM mailing_contacts WHERE email = ?');
+    $insertMembership = $pdo->prepare(
+        'INSERT OR IGNORE INTO mailing_list_memberships (contact_id, list_id, status, source) VALUES (?, ?, "active", "legacy_newsletter_migration")'
+    );
+
+    foreach ($legacyRows as $row) {
+        $email = strtolower(trim((string)($row['email'] ?? '')));
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            continue;
+        }
+
+        $name = trim((string)($row['name'] ?? ''));
+        $interest = strtolower(trim((string)($row['interest'] ?? 'both')));
+        $slugs = map_legacy_newsletter_interest_to_list_slugs($interest);
+
+        $insertContact->execute([$email, $name]);
+        if ($name !== '') {
+            $updateContactName->execute([$name, $email]);
+        }
+
+        $findContact->execute([$email]);
+        $contactId = (int)$findContact->fetchColumn();
+        if ($contactId <= 0) {
+            continue;
+        }
+
+        foreach ($slugs as $slug) {
+            $listId = $listMap[$slug] ?? 0;
+            if ($listId <= 0) {
+                continue;
+            }
+            $insertMembership->execute([$contactId, $listId]);
+        }
+    }
+
+    mark_schema_migration($pdo, $migrationKey);
 }
 
 // ---------------------------------------------------------------------------

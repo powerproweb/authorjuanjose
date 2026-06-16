@@ -13,6 +13,10 @@ All notable changes to AuthorJuanJose.io will be documented in this file.
 - Custom 404 page
 - Project scaffolding: .gitignore, .gitattributes, AGENTS.md, CHANGELOG.md
 - BUILD_plan.md — consolidated project plan from mempalace planning docs
+- Standalone Author-only mailing list architecture (`mailing_lists`, `mailing_contacts`, `mailing_list_memberships`) with seeded default categories
+- Automatic legacy migration path from `newsletter_subscribers` into the new mailing-list tables
+- Multi-list newsletter signup UI and processing (`list_slugs[]`) while preserving backward compatibility
+- New admin page: `/admin/mailing-lists` for membership updates, list movement, filtering, and duplicate-email checks
 
 ### Phase 2 — Book Infrastructure
 - Centralized book catalog data system (`includes/book-catalog.php`) with helper functions

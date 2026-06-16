@@ -2065,14 +2065,48 @@ a.book-card:hover {
   display: none;
 }
 
-.newsletter-form__field input,
+.newsletter-form__field input:not([type="checkbox"]),
 .newsletter-form__field select {
   width: 100%;
+}
+
+.newsletter-form__lists {
+  margin: 0;
+  padding: var(--space-sm);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+}
+
+.newsletter-form__lists legend {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  padding: 0 var(--space-xs);
+}
+
+.newsletter-form__checkbox {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: flex-start;
+  margin-bottom: var(--space-xs);
+}
+
+.newsletter-form__checkbox:last-child {
+  margin-bottom: 0;
+}
+
+.newsletter-form__checkbox small {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ink-light);
 }
 
 .newsletter-form--inline .newsletter-form__field {
   flex: 1;
   min-width: 140px;
+}
+.newsletter-form--inline .newsletter-form__field--lists {
+  flex-basis: 100%;
 }
 
 .newsletter-form--inline .newsletter-form__field:last-child {
