@@ -55,8 +55,56 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 // Insert into database
 $pdo = get_db();
+$storageDir = __DIR__ . '/storage';
+if (!is_dir($storageDir)) {
+    mkdir($storageDir, 0755, true);
+}
 
-$normalizedEmail = strtolower($email);
+$ipAddress = trim((string)($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+$rateLimitFile = $storageDir . '/newsletter-rate-limit.json';
+$rateLimitWindowSeconds = 3600;
+$rateLimitMaxAttempts = 18;
+$rateLimitKey = hash('sha256', 'newsletter|' . $ipAddress);
+$rateData = [];
+if (is_file($rateLimitFile)) {
+    $json = file_get_contents($rateLimitFile);
+    if (is_string($json) && $json !== '') {
+        $decoded = json_decode($json, true);
+        if (is_array($decoded)) {
+            $rateData = $decoded;
+        }
+    }
+}
+$now = time();
+$entry = $rateData[$rateLimitKey] ?? ['window_start' => $now, 'hits' => 0];
+$windowStart = (int)($entry['window_start'] ?? $now);
+$hits = (int)($entry['hits'] ?? 0);
+if (($now - $windowStart) >= $rateLimitWindowSeconds) {
+    $windowStart = $now;
+    $hits = 0;
+}
+$hits++;
+$rateData[$rateLimitKey] = [
+    'window_start' => $windowStart,
+    'hits' => $hits,
+];
+foreach ($rateData as $key => $value) {
+    $keyWindowStart = (int)($value['window_start'] ?? 0);
+    if ($keyWindowStart <= 0 || ($now - $keyWindowStart) >= ($rateLimitWindowSeconds * 2)) {
+        unset($rateData[$key]);
+    }
+}
+file_put_contents(
+    $rateLimitFile,
+    json_encode($rateData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+    LOCK_EX
+);
+if ($hits > $rateLimitMaxAttempts) {
+    $_SESSION['newsletter_error'] = 'Too many signup attempts. Please wait and try again.';
+    $redirect($redirect_to);
+}
+
+$normalizedEmail = normalize_mailing_email($email);
 $listSlugs = normalize_mailing_list_slugs($listSlugs);
 if ($listSlugs === []) {
     $listSlugs = ['author-news'];
@@ -140,10 +188,6 @@ if ($isNewContact) {
 }
 
 // Log
-$storageDir = __DIR__ . '/storage';
-if (!is_dir($storageDir)) {
-    mkdir($storageDir, 0755, true);
-}
 $line = json_encode([
     'event'   => 'newsletter_signup',
     'email'   => $normalizedEmail,

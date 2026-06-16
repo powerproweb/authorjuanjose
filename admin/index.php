@@ -97,6 +97,10 @@ require_once dirname(__DIR__) . '/includes/header.php';
       <h3>Mailing Lists</h3>
       <p>Manage Author-only newsletter contacts, list memberships, and duplicate checks.</p>
     </a>
+    <a class="card" href="/admin/mailing-duplicates" style="text-decoration:none;color:var(--ink)">
+      <h3>Mailing Duplicates</h3>
+      <p>Review duplicate clusters, merge records safely, and manage ignored clusters.</p>
+    </a>
     <a class="card" href="/admin/form-submissions" style="text-decoration:none;color:var(--ink)">
       <h3>Contact Inbox</h3>
       <p>Review contact submissions, update statuses, add notes, archive, and restore.</p>
